@@ -19,7 +19,7 @@ public class Process {
     private CPU cpu;
 
     @Builder.Default
-    private Long vruntime = 0L;
+    private Long vruntime;
 
     @Builder.Default
     private boolean ioBurst = false;
@@ -33,6 +33,7 @@ public class Process {
         this.resource = resource;
         this.cpu = cpu;
         this.log = log;
+        vruntime = 0L;
     }
 
     public void waitForResource() {
@@ -40,9 +41,10 @@ public class Process {
     }
 
     public void waitForCPU() {
-        cpu.setProcess(this);
+        cpu.addProcess(this);
     }
 
+    // TODO update vruntime
     public void run() {
         Integer burst = taskIterator.next();
         String type = ioBurst ? "Resource " + resource.getName() : "CPU " + cpu.getId();
