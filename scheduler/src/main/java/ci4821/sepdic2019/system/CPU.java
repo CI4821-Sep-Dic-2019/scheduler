@@ -9,41 +9,32 @@ import lombok.Getter;
 public class CPU implements Runnable {
     private final int id;
     private final Log log;
-    private Optional<Process> processOptional = Optional.empty();
+    private ProcessTree processTree;
     private Thread t;
     public CPU(int id, Log log) {
+        processTree = new ProcessTree(log);
         this.id = id;
         this.log = log;
         t = new Thread(this, "Core: " + id);
         t.start();
     }
 
-    public synchronized void setProcess(Process process) {
-        this.processOptional = Optional.ofNullable(process);
-        log.add("CPU " + id + ": set process " + process.getPid());
-        notify();
+    public void addProcess(Process process) {
+        processTree.addProcess(process);
     }
 
-    public synchronized void setProcessOptional(Optional<Process> procOptional) {
-        this.processOptional = procOptional;
+    public Process getProcess() {
+        return processTree.getProcess();
     }
 
-    public synchronized Optional<Process> getProcessOptional() {
-        return processOptional;
-    }
-
-    public synchronized void run() {
-        while (!processOptional.isPresent()) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                log.add("Core " + id + " interrupted.");
-            }
+    public void run() {
+        while(true) {
+            // TO DO: en algun punto modificar el vruntime y no agregar el proceso al final
+            // si ya termino de correr (?)
+            Process process = getProcess();
+            log.add("Core " + id + ": start running process " + process.getPid());
+            process.run();
+            addProcess(process);
         }
-        log.add("Core " + id + ": start running process " + processOptional.map(Process::getPid).get());
-        processOptional.get().run();
-        setProcessOptional(Optional.empty());
-        notify();
-        run();
     }
 }
