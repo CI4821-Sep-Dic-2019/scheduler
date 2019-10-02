@@ -42,7 +42,7 @@ public class Resource implements Runnable {
             }
             Process process = pQueue.poll();
             log.add("Resource " + name + ": dequeue process " + process.getPid());
-            process.waitForCPU();
+            process.run();
         }
     }
 }
