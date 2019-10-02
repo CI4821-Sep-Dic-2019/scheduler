@@ -31,19 +31,18 @@ public class Resource implements Runnable {
     }
 
     public synchronized void run() {
-        while (pQueue.isEmpty()) {
-            try {
-                // wait for element
-                wait();
-            } catch (InterruptedException e) {
-                log.add("Resource " + name + " interrupted.");
+        while (true) {
+            while (pQueue.isEmpty()) {
+                try {
+                    // wait for element
+                    wait();
+                } catch (InterruptedException e) {
+                    log.add("Resource " + name + " interrupted.");
+                }
             }
+            Process process = pQueue.poll();
+            log.add("Resource " + name + ": dequeue process " + process.getPid());
+            process.waitForCPU();
         }
-        Process process = pQueue.poll();
-        log.add("Resource " + name + ": dequeue process " + process.getPid());
-        notify();
-
-        process.run();          // allocate process
-        run();
     }
 }

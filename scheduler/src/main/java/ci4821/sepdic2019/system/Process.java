@@ -46,9 +46,6 @@ public class Process {
 
     // TODO update vruntime
     public void run() {
-        if (! taskIterator.hasNext()) {
-            return;
-        }
         Integer burst = taskIterator.next();
         String type = ioBurst ? "Resource " + resource.getName() : "CPU " + cpu.getId();
         for (Integer i=0; i < burst; i++) {

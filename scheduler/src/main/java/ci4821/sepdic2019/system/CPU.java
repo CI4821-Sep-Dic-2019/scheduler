@@ -20,6 +20,7 @@ public class CPU implements Runnable {
     }
 
     public void addProcess(Process process) {
+        log.add("CPU " + id + ": " + "add process " + process.getPid());
         processTree.addProcess(process);
     }
 
@@ -29,12 +30,9 @@ public class CPU implements Runnable {
 
     public void run() {
         while(true) {
-            // TO DO: en algun punto modificar el vruntime y no agregar el proceso al final
-            // si ya termino de correr (?)
             Process process = getProcess();
             log.add("Core " + id + ": start running process " + process.getPid());
             process.run();
-            addProcess(process);
         }
     }
 }
