@@ -1,0 +1,15 @@
+cores: "number-cores"
+load-balancer: "time-between-load-balancer-execution"
+cycle: "clock-cycle-time"
+processes:
+  - id: "process_unique_id":
+    time: "arriving-time"
+    priority: "process-priority"
+    resources: 
+      - "number-cpu-cycles"
+      - "number-io-cycles"
+      - "number-cpu-cycles"
+      - "number-io-cycles"
+      - "number-cpu-cycles"
+      - "number-io-cycles"
+      

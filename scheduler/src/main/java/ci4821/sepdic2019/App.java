@@ -7,6 +7,7 @@ import ci4821.sepdic2019.ds.Log;
 import ci4821.sepdic2019.system.CPU;
 import ci4821.sepdic2019.system.Resource;
 import ci4821.sepdic2019.system.Process;
+import ci4821.sepdic2019.utils.Parser;
 
 /**
  * Hello world!
@@ -15,6 +16,9 @@ import ci4821.sepdic2019.system.Process;
 public class App 
 {
     public static void main (String[] args) throws InterruptedException {
+
+        Parser parseObj = new Parser();
+        
         Log log = new Log();
         Resource resource = new Resource("I/O", log);
         CPU core1 = new CPU(1, log);
