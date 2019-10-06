@@ -6,11 +6,16 @@ import ci4821.sepdic2019.ds.Log;
 import lombok.Data;
 
 @Data
-class OperatingSystem {
+public class OperatingSystem {
     private final Set<CPU> cpuSet;
     private final Set<Resource> resources;
     private final Log log;
-
+    
+    public OperatingSystem() {
+        this.cpuSet = null;
+        this.resources = null;
+        this.log = null;
+    }
     public void createProcess(Process process) {
 
     }
