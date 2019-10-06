@@ -4,6 +4,9 @@ import java.util.Set;
 
 import ci4821.sepdic2019.ds.Log;
 import lombok.Data;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 @Data
 public class OperatingSystem {
@@ -21,7 +24,11 @@ public class OperatingSystem {
         this.log = log;
     }
 
-    public void createProcess(Process process) {
+    public void createProcess(ArrayList<Object> procs) {
         // Aqui esdonde distribuyo procesos entre los cpu?
+        for (int i = 0; i < procs.size(); i++) {
+            Map<String, Object> process = (Map<String, Object>)procs.get(0);
+            // pasarle un proceso a cada cpu alternativamente
+        }
     }
 }
