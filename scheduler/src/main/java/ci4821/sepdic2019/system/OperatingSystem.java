@@ -10,13 +10,18 @@ public class OperatingSystem {
     private final Set<CPU> cpuSet;
     private final Set<Resource> resources;
     private final Log log;
+    private final Integer loadBalancerTime;
+    private final Integer cpuTime;
     
-    public OperatingSystem() {
-        this.cpuSet = null;
-        this.resources = null;
-        this.log = null;
+    public OperatingSystem(Set<CPU> cpuSet, Set<Resource> resources, Integer loadBalancerTime, Integer cpuTime, Log log) {
+        this.cpuSet = cpuSet;
+        this.loadBalancerTime = loadBalancerTime;
+        this.cpuTime = cpuTime;
+        this.resources = resources;;
+        this.log = log;
     }
-    public void createProcess(Process process) {
 
+    public void createProcess(Process process) {
+        // Aqui esdonde distribuyo procesos entre los cpu?
     }
 }

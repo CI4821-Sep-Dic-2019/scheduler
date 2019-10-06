@@ -1,3 +1,6 @@
+cores: "4"
+load-balancer: "5"
+cycle: "1"
 processes:
   - pid: "1"
     time: "2019/10/05 20:59:15"
