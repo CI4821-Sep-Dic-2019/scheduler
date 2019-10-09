@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "CodeLens (Launch) - Parser",
+            "request": "launch",
+            "mainClass": "ci4821.sepdic2019.system.Parser",
+            "projectName": "scheduler"
+        }
+    ]
+}

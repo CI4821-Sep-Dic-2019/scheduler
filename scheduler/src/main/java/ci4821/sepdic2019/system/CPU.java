@@ -1,11 +1,11 @@
 package ci4821.sepdic2019.system;
 
-import java.util.Optional;
-
 import ci4821.sepdic2019.ds.Log;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CPU implements Runnable {
     private final int id;
     private final Log log;
@@ -15,7 +15,7 @@ public class CPU implements Runnable {
         processTree = new ProcessTree(log);
         this.id = id;
         this.log = log;
-        t = new Thread(this, "Core: " + id);
+        t = new Thread(this, "CPU: " + id);
         t.start();
     }
 
@@ -31,7 +31,7 @@ public class CPU implements Runnable {
     public void run() {
         while(true) {
             Process process = getProcess();
-            log.add("Core " + id + ": start running process " + process.getPid());
+            log.add("CPU " + id + ": start running process " + process.getPid());
             process.run();
         }
     }
