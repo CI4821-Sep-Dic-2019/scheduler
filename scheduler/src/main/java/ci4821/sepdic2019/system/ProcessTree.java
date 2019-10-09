@@ -40,4 +40,8 @@ public class ProcessTree {
         }
         return tree.pollFirst();
     }
+
+    public int size() {
+        return tree.size();
+    }
 }

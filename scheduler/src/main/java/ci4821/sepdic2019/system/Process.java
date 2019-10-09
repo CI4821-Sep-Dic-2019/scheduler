@@ -11,7 +11,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class Process {
-    private final int pid;
+    private final Integer pid;
     private final Iterator<Integer> taskIterator;
     private final double priority;
     private final Resource resource;
@@ -19,12 +19,12 @@ public class Process {
     private CPU cpu;
 
     @Builder.Default
-    private Long vruntime;
+    private Long vruntime = 0L;
 
     @Builder.Default
     private boolean ioBurst = false;
 
-    public Process(int pid, Iterator<Integer> taskIterator, double priority,
+    public Process(Integer pid, Iterator<Integer> taskIterator, double priority,
         Resource resource, Log log, CPU cpu
     ) {
         this.pid = pid;
