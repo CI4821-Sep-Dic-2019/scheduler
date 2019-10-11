@@ -16,7 +16,7 @@ public class Process {
     private final double priority;
     private final Resource resource;
     private final Log log;
-    private CPU cpu;
+    private final Monitor cpuMonitor;
 
     @Builder.Default
     private Long vruntime = 0L;
@@ -25,29 +25,35 @@ public class Process {
     private boolean ioBurst = false;
 
     public Process(Integer pid, Iterator<Integer> taskIterator, double priority,
-        Resource resource, Log log, CPU cpu
+        Resource resource, Log log, Monitor cpuMonitor
     ) {
         this.pid = pid;
         this.taskIterator = taskIterator;
         this.priority = priority;
         this.resource = resource;
-        this.cpu = cpu;
         this.log = log;
+        this.cpuMonitor = cpuMonitor;
         vruntime = 0L;
     }
 
     public void waitForResource() {
+        cpuMonitor.setStatus(this, Status.BLOCKED);
         resource.enqueue(this);
     }
 
     public void waitForCPU() {
-        cpu.addProcess(this);
+        cpuMonitor.setStatus(this, Status.READY);
+        cpuMonitor.setAllocatedCPU(this, getCPU());
+    }
+
+    public CPU getCPU() {
+        return cpuMonitor.getAllocatedCPU(this);
     }
 
     // TODO update vruntime
     public void run() {
         Integer burst = taskIterator.next();
-        String type = ioBurst ? "Resource " + resource.getName() : "CPU " + cpu.getId();
+        String type = ioBurst ? "Resource " + resource.getName() : "CPU " + getCPU().getId();
         for (Integer i=0; i < burst; i++) {
             log.add("Process " + pid + ": " + type + " (" + i + ")");
         }

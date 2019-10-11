@@ -1,5 +1,5 @@
 cores: "4"
-load-balancer: "5"
+load-balancer: "10000"
 cycle: "1"
 processes:
   - pid: "1"

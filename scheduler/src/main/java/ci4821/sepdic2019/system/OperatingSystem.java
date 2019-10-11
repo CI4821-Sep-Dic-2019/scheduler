@@ -12,18 +12,21 @@ import java.util.List;
 
 @Data
 public class OperatingSystem {
-    private final TreeSet<CPU> cpuSet;
+    private final Monitor cpuMonitor;
     private final Resource resource;
     private final Log log;
     private final Integer loadBalancerTime;
     private final Integer cpuTime;
+    private final LoadBalancer loadBalancer;
     
-    public OperatingSystem(TreeSet<CPU> cpuSet, Resource resource, Integer loadBalancerTime, Integer cpuTime, Log log) {
-        this.cpuSet = cpuSet;
+    public OperatingSystem(Monitor cpuMonitor, Resource resource, Integer loadBalancerTime, Integer cpuTime, Log log) {
+        log.add("Operating System constructor");
+        this.cpuMonitor = cpuMonitor;
         this.loadBalancerTime = loadBalancerTime;
         this.cpuTime = cpuTime;
         this.resource = resource;
         this.log = log;
+        this.loadBalancer = new LoadBalancer(cpuMonitor, log, loadBalancerTime);
     }
 
     public void createProcess(ArrayList<Object> procs) {
@@ -32,12 +35,13 @@ public class OperatingSystem {
             Map<String, Object> process = (HashMap<String, Object>) procs.get(i);
             List<Object> tasks = (ArrayList<Object>) process.get("tasks");
 
-            CPU nextCPU = cpuSet.pollFirst(); // CPU con menos carga
-
+            log.add("A");
+            CPU nextCPU = cpuMonitor.pollIdle(); // CPU con menos carga
+            log.add("B");
+            int pid = Integer.parseInt(process.get("pid").toString());
             // Agregamos el proceso a los que esperan por este CPU
-            nextCPU.addProcess(Process.builder()
-                .cpu(nextCPU)
-                .pid(Integer.parseInt(process.get("pid").toString()))
+            Process newProcess = Process.builder()
+                .pid(pid)
                 .taskIterator(tasks.stream()
                     .map(Object::toString)
                     .map(x -> Integer.parseInt(x))
@@ -46,10 +50,15 @@ public class OperatingSystem {
                 .priority(Double.parseDouble(process.get("pid").toString()))
                 .resource(resource)
                 .log(log)
-                .build());
+                .build();
+            
+            cpuMonitor.setStatus(newProcess, Status.READY);
+            cpuMonitor.setAllocatedCPU(newProcess, nextCPU);
 
             // Actualizamos el conjunto de CPUs
-            cpuSet.add(nextCPU);
+            cpuMonitor.addCPU(nextCPU);
+
+            log.add("Process " + pid + " created");
         }
     }
 }

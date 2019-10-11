@@ -27,7 +27,7 @@ public class ProcessTree {
 
     public synchronized void addProcess(Process process) {
         tree.add(process);
-        notify();
+        notifyAll();
     }
 
     public synchronized Process getProcess() {
@@ -39,6 +39,10 @@ public class ProcessTree {
             }
         }
         return tree.pollFirst();
+    }
+
+    public synchronized void removeProcess(Process process) {
+        tree.remove(process);
     }
 
     public int size() {
