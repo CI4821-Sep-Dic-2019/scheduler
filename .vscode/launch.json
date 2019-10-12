@@ -2,6 +2,13 @@
     "configurations": [
         {
             "type": "java",
+            "name": "CodeLens (Launch) - App",
+            "request": "launch",
+            "mainClass": "ci4821.sepdic2019.App",
+            "projectName": "scheduler"
+        },
+        {
+            "type": "java",
             "name": "CodeLens (Launch) - Parser",
             "request": "launch",
             "mainClass": "ci4821.sepdic2019.system.Parser",

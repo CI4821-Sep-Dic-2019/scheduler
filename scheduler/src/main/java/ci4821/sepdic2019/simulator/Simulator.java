@@ -3,19 +3,23 @@ package ci4821.sepdic2019.simulator;
 import ci4821.sepdic2019.system.OperatingSystem;
 import ci4821.sepdic2019.utils.Parser;
 import ci4821.sepdic2019.ds.Log;
+import ci4821.sepdic2019.system.AllocatedCPUMonitor;
 import ci4821.sepdic2019.system.CPU;
+import ci4821.sepdic2019.system.CPUTreeMonitor;
 import ci4821.sepdic2019.system.Resource;
+import ci4821.sepdic2019.system.StatusMapMonitor;
 
 import java.util.Map;
-import java.util.TreeSet;
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class Simulator {
     
     OperatingSystem system = null;
     Map<String, Object> data = null;
     Log log;
+    CPUTreeMonitor cpuTreeMonitor;
+    AllocatedCPUMonitor allocatedCPUMonitor;
+    StatusMapMonitor statusMapMonitor;
 
     public Simulator() {
 
@@ -24,7 +28,11 @@ public class Simulator {
 
         this.log = new Log();
         
-        TreeSet<CPU> cpuSet = generateCPUs();
+        cpuTreeMonitor = new CPUTreeMonitor(log);
+
+        statusMapMonitor = new StatusMapMonitor(log);
+
+        allocatedCPUMonitor = new AllocatedCPUMonitor(log, cpuTreeMonitor, statusMapMonitor);
         
         Integer loadBalancerTime = Integer.parseInt(data.get("load-balancer").toString());
         log.add("Load Balancer intervals time: " + loadBalancerTime);
@@ -32,35 +40,28 @@ public class Simulator {
         Integer cpuTime = Integer.parseInt(data.get("cycle").toString());
         log.add("CPU cycles time: " + cpuTime);
         
+        generateCPUs(cpuTreeMonitor);
+
         log.add("Initializing operating system...");
-        this.system = new OperatingSystem(cpuSet, new Resource("I/O", this.log), loadBalancerTime, cpuTime, log);
+        this.system = new OperatingSystem(cpuTreeMonitor, allocatedCPUMonitor, 
+            statusMapMonitor, new Resource("I/O", this.log), 
+            loadBalancerTime, cpuTime, log);
         
     }
 
-    private TreeSet<CPU> generateCPUs() {
-        TreeSet<CPU> cpuSet = new TreeSet<CPU>(new Comparator<CPU> () {
-            @Override
-            public int compare(CPU cpu1, CPU cpu2) {
-                int comp = cpu1.getProcessTree().size() - cpu2.getProcessTree().size();
-                if (comp == 0) {
-                    return cpu1.getId() - cpu2.getId();
-                }
-                return comp;
-            }
-        });
+    private void generateCPUs(CPUTreeMonitor cpuTreeMonitor) {
         Integer cores = Integer.parseInt(data.get("cores").toString());
 
         for (int i = 0; i < cores; i++) {
-            CPU cpu = new CPU(i, log);
-            cpuSet.add(cpu);
+            CPU cpu = new CPU(i, cpuTreeMonitor, statusMapMonitor, log);
             log.add("Creating cpu: " + i);
+            cpuTreeMonitor.addCPU(cpu);
         }
-
-        return cpuSet;
     }
 
     public void startSimulation() {
         // Call createProcess from here
+        log.add("Start simulation");
         ArrayList<Object> procs = (ArrayList<Object>)data.get("processes");
         system.createProcess(procs);
     }

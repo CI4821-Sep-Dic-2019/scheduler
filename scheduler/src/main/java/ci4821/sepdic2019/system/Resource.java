@@ -10,38 +10,27 @@ import lombok.Data;
 public class Resource implements Runnable {
     private final String name;
     private final Log log;
-    private Queue<Process> pQueue;
+    private ProcessQueue pQueue;
     private Thread t;
+    private final String logName = "[I/O]";
 
     public Resource(String name, Log log) {
         this.name = name;
         this.log = log;
-        this.pQueue = new ConcurrentLinkedDeque<Process>();
+        this.pQueue = new ProcessQueue();
         t = new Thread(this, name);
         t.start();
     }
 
-    public synchronized void enqueue(Process process) {
+    public void enqueue(Process process) {
         pQueue.add(process);
-        log.add("Resource " + name + ": enqueue process " + process.getPid());
-        if (pQueue.size() == 1) {
-            // notify queue is not empty
-            notifyAll();
-        }
+        log.add(logName + "  enqueue process " + process.getPid());
     }
 
     public synchronized void run() {
         while (true) {
-            while (pQueue.isEmpty()) {
-                try {
-                    // wait for element
-                    wait();
-                } catch (InterruptedException e) {
-                    log.add("Resource " + name + " interrupted.");
-                }
-            }
             Process process = pQueue.poll();
-            log.add("Resource " + name + ": dequeue process " + process.getPid());
+            log.add(logName + "  dequeue process " + process.getPid());
             process.run();
         }
     }
