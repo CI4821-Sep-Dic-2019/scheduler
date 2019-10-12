@@ -7,56 +7,64 @@ import ci4821.sepdic2019.ds.Log;
 import lombok.Data;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
 
 @Data
 public class OperatingSystem {
-    private final Monitor cpuMonitor;
+    private final CPUTreeMonitor cpuTreeMonitor;
+    private final AllocatedCPUMonitor allocatedCPUMonitor;
+    private final StatusMapMonitor statusMapMonitor;
     private final Resource resource;
     private final Log log;
     private final Integer loadBalancerTime;
     private final Integer cpuTime;
     private final LoadBalancer loadBalancer;
     
-    public OperatingSystem(Monitor cpuMonitor, Resource resource, Integer loadBalancerTime, Integer cpuTime, Log log) {
-        log.add("Operating System constructor");
-        this.cpuMonitor = cpuMonitor;
+    public OperatingSystem(CPUTreeMonitor cpuTreeMonitor, AllocatedCPUMonitor allocatedCPUMonitor,
+        StatusMapMonitor statusMapMonitor, Resource resource, 
+        Integer loadBalancerTime, Integer cpuTime, Log log
+    ) {
+        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.allocatedCPUMonitor = allocatedCPUMonitor;
+        this.statusMapMonitor = statusMapMonitor;
         this.loadBalancerTime = loadBalancerTime;
         this.cpuTime = cpuTime;
         this.resource = resource;
         this.log = log;
-        this.loadBalancer = new LoadBalancer(cpuMonitor, log, loadBalancerTime);
+
+        this.loadBalancer = new LoadBalancer(cpuTreeMonitor, allocatedCPUMonitor,
+            log, loadBalancerTime);
     }
 
     public void createProcess(ArrayList<Object> procs) {
         for (int i = 0; i < procs.size(); i++) {
             // Objeto con la información necesaria para simular al proceso
             Map<String, Object> process = (HashMap<String, Object>) procs.get(i);
-            List<Object> tasks = (ArrayList<Object>) process.get("tasks");
 
-            log.add("A");
-            CPU nextCPU = cpuMonitor.pollIdle(); // CPU con menos carga
-            log.add("B");
+            List<Object> tasks = (ArrayList<Object>) process.get("tasks");
+            Iterator<Integer> taskIterator = tasks.stream()
+                .map(Object::toString)
+                .map(x -> Integer.parseInt(x))
+                .collect(Collectors.toList())
+                .iterator();
+
+            CPU nextCPU = cpuTreeMonitor.pollIdle(); // CPU con menos carga
             int pid = Integer.parseInt(process.get("pid").toString());
-            // Agregamos el proceso a los que esperan por este CPU
-            Process newProcess = Process.builder()
-                .pid(pid)
-                .taskIterator(tasks.stream()
-                    .map(Object::toString)
-                    .map(x -> Integer.parseInt(x))
-                    .collect(Collectors.toList())
-                    .iterator())
-                .priority(Double.parseDouble(process.get("pid").toString()))
-                .resource(resource)
-                .log(log)
-                .build();
-            
-            cpuMonitor.setStatus(newProcess, Status.READY);
-            cpuMonitor.setAllocatedCPU(newProcess, nextCPU);
+
+            Process newProcess = new Process(
+                pid, taskIterator, 
+                Double.parseDouble(process.get("pid").toString()), 
+                resource, log, cpuTreeMonitor, allocatedCPUMonitor, 
+                statusMapMonitor, cpuTime);
+
+            // Agregamos el proceso a los que esperan por este CPU            
+            statusMapMonitor.setStatus(newProcess, Status.READY);
+            allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
 
             // Actualizamos el conjunto de CPUs
-            cpuMonitor.addCPU(nextCPU);
+            cpuTreeMonitor.addCPU(nextCPU);
 
             log.add("Process " + pid + " created");
         }

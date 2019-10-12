@@ -3,64 +3,91 @@ package ci4821.sepdic2019.system;
 import java.util.Iterator;
 
 import ci4821.sepdic2019.ds.Log;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
-@Builder
 public class Process {
     private final Integer pid;
     private final Iterator<Integer> taskIterator;
     private final double priority;
     private final Resource resource;
     private final Log log;
-    private final Monitor cpuMonitor;
+    private final String logName;
 
-    @Builder.Default
+    private final CPUTreeMonitor cpuTreeMonitor;
+    private final AllocatedCPUMonitor allocatedCPUMonitor;
+    private final StatusMapMonitor statusMapMonitor;
+
+    private final Integer cpuTime;
+
     private Long vruntime = 0L;
 
-    @Builder.Default
     private boolean ioBurst = false;
 
-    public Process(Integer pid, Iterator<Integer> taskIterator, double priority,
-        Resource resource, Log log, Monitor cpuMonitor
-    ) {
+    public Process(Integer pid, Iterator<Integer> taskIterator, double priority, Resource resource, Log log,
+            CPUTreeMonitor cpuTreeMonitor, AllocatedCPUMonitor allocatedCPUMonitor, StatusMapMonitor statusMapMonitor,
+            Integer cpuTime) {
         this.pid = pid;
+        this.logName = "[Process " + pid + "]";
+
         this.taskIterator = taskIterator;
         this.priority = priority;
         this.resource = resource;
         this.log = log;
-        this.cpuMonitor = cpuMonitor;
+
+        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.allocatedCPUMonitor = allocatedCPUMonitor;
+        this.statusMapMonitor = statusMapMonitor;
+
         vruntime = 0L;
+
+        this.cpuTime = cpuTime;
     }
 
     public void waitForResource() {
-        cpuMonitor.setStatus(this, Status.BLOCKED);
+        log.add(logName + " Wait for resource");
+        statusMapMonitor.setStatus(this, Status.BLOCKED);
         resource.enqueue(this);
     }
 
     public void waitForCPU() {
-        cpuMonitor.setStatus(this, Status.READY);
-        cpuMonitor.setAllocatedCPU(this, getCPU());
+        log.add(logName + " Wait for CPU");
+        statusMapMonitor.setStatus(this, Status.READY);
+        allocatedCPUMonitor.setAllocatedCPU(this, getCPU());
     }
 
     public CPU getCPU() {
-        return cpuMonitor.getAllocatedCPU(this);
+        return allocatedCPUMonitor.getAllocatedCPU(this);
     }
 
     // TODO update vruntime
-    public void run() {
+    public synchronized void run() {
         Integer burst = taskIterator.next();
-        String type = ioBurst ? "Resource " + resource.getName() : "CPU " + getCPU().getId();
-        for (Integer i=0; i < burst; i++) {
-            log.add("Process " + pid + ": " + type + " (" + i + ")");
+        String type = ioBurst ? " Waiting for resource " + resource.getName() : " Running at cpu " + getCPU().getId();
+        for (Integer i = 0; i < burst; i++) {
+            try {
+                wait(cpuTime);
+                log.add(logName + type + " (" + i + ")");
+            } catch (InterruptedException e) {
+                log.add(logName + " Interrupted");
+            }
         }
+
+        // Check if process ended
         if (taskIterator.hasNext()) {
-            if (ioBurst) waitForCPU();
-            else waitForResource();
             ioBurst = !ioBurst;
+
+            if (!ioBurst) waitForCPU();
+            else waitForResource();
+
+        } else {
+
+            CPU cpu = getCPU();
+            cpu.removeProcess(this);
+            cpuTreeMonitor.updateCPU(cpu);
+
+            allocatedCPUMonitor.removeProcess(this);
+            statusMapMonitor.removeProcess(this);
         }
     }
 }

@@ -9,16 +9,20 @@ import lombok.Data;
 
 @Data
 public class LoadBalancer implements Runnable {
-    private final Monitor cpuMonitor;
+    private final CPUTreeMonitor cpuTreeMonitor;
+    private final AllocatedCPUMonitor allocatedCPUMonitor;
     private final Log log;
-    private final Integer slice; // in miliseconds
+    private final Integer cpuTime; // in miliseconds
     private Thread t;
+    private final String logName = "[LoadBalancer]";
 
-    public LoadBalancer(Monitor cpuMonitor, Log log, Integer slice) {
-        log.add("Load balancer constructor");
-        this.cpuMonitor = cpuMonitor;
+    public LoadBalancer(CPUTreeMonitor cpuTreeMonitor, AllocatedCPUMonitor allocatedCPUMonitor,
+        Log log, Integer cpuTime
+    ) {
+        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.log = log;
-        this.slice = slice;
+        this.cpuTime = cpuTime;
         t = new Thread(this, "Load Balancer");
         t.start();
     }
@@ -26,38 +30,12 @@ public class LoadBalancer implements Runnable {
     public synchronized void run() {
         while(true) {
             try {
-                wait(slice);
+                wait(cpuTime);
             } catch (InterruptedException e) {
-                log.add("Load balancer interrupted");
+                log.add(logName + " Interrupted");
             }
-            log.add("Push load balancing started");
-            int totalProcesses =
-                cpuMonitor.getCpuTree()
-                    .stream()
-                    .map(cpu -> cpu.getProcessTree().size())
-                    .map(i -> Integer.valueOf(i))
-                    .reduce((x,y) -> x + y)
-                    .orElse(0);
-            int totalCPUs = cpuMonitor.size();
-            double expectedDoubleSize = ((double)totalProcesses)/((double)totalCPUs);
-            Integer expectedSize = (int)Math.ceil(expectedDoubleSize);
-
-            // First extract processes to move from each CPU red black tree
-            Set<Process> processesToMove = new HashSet<>();
-            for (CPU cpu : cpuMonitor.getCpuTree()) {
-                while(cpu.getProcessTree().size() > expectedSize) {
-                    processesToMove.add(cpu.getProcessTree().getProcess());
-                }
-            }
-
-            Iterator<Process> processIterator = processesToMove.iterator();
-            for (CPU cpu : cpuMonitor.getCpuTree()) {
-                while(cpu.getProcessTree().size() < expectedSize && 
-                    processIterator.hasNext()
-                ) {
-                    cpuMonitor.setAllocatedCPU(processIterator.next(), cpu);
-                }
-            }
+            log.add(logName + " Push load balancing started");
+            cpuTreeMonitor.pushLoadBalancing(allocatedCPUMonitor);
 
         }
     }

@@ -12,6 +12,7 @@ public class Resource implements Runnable {
     private final Log log;
     private Queue<Process> pQueue;
     private Thread t;
+    private final String logName = "[I/O]";
 
     public Resource(String name, Log log) {
         this.name = name;
@@ -23,9 +24,8 @@ public class Resource implements Runnable {
 
     public synchronized void enqueue(Process process) {
         pQueue.add(process);
-        log.add("Resource " + name + ": enqueue process " + process.getPid());
+        log.add(logName + "  enqueue process " + process.getPid());
         if (pQueue.size() == 1) {
-            // notify queue is not empty
             notifyAll();
         }
     }
@@ -37,11 +37,11 @@ public class Resource implements Runnable {
                     // wait for element
                     wait();
                 } catch (InterruptedException e) {
-                    log.add("Resource " + name + " interrupted.");
+                    log.add(logName + "  interrupted.");
                 }
             }
             Process process = pQueue.poll();
-            log.add("Resource " + name + ": dequeue process " + process.getPid());
+            log.add(logName + "  dequeue process " + process.getPid());
             process.run();
         }
     }

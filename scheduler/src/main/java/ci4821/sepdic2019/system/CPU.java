@@ -8,37 +8,46 @@ import lombok.ToString;
 @ToString
 public class CPU implements Runnable {
     private final int id;
-    private final Monitor cpuMonitor;
+    private final CPUTreeMonitor cpuTreeMonitor;
+    private final StatusMapMonitor statusMapMonitor;
     private final Log log;
     private ProcessTree processTree;
     private Thread t;
-    public CPU(int id, Monitor cpuMonitor, Log log) {
-        log.add("CPU " + id + " constructor");
+    private final String logName;
+    public CPU(int id, CPUTreeMonitor cpuTreeMonitor, StatusMapMonitor statusMapMonitor, Log log) {
         processTree = new ProcessTree(log);
         this.id = id;
-        this.cpuMonitor = cpuMonitor;
+        this.logName = "[CPU " + id + "]";
+        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.statusMapMonitor = statusMapMonitor;
         this.log = log;
         t = new Thread(this, "CPU: " + id);
         t.start();
     }
 
     public void addProcess(Process process) {
-        log.add("CPU " + id + ": " + "add process " + process.getPid());
+        log.add(logName + " add process " + process.getPid());
         processTree.addProcess(process);
+    }
+
+    public void removeProcess(Process process) {
+        log.add(logName + " remove process " + process.getPid());
+        processTree.removeProcess(process);
     }
 
     public Process pollProcess() {
         Process process = processTree.getProcess();
-        log.add("CPU " + id + ": " + "poll process " + process.getPid());        
-        cpuMonitor.removeCPU(this);
-        cpuMonitor.addCPU(this);
+        log.add(logName + " poll process " + process.getPid());        
+        cpuTreeMonitor.removeCPU(this);
+        cpuTreeMonitor.addCPU(this);
         return process;
     }
 
     public void run() {
         while(true) {
             Process process = pollProcess();
-            log.add("CPU " + id + ": start running process " + process.getPid());
+            log.add(logName + "  start running process " + process.getPid());
+            statusMapMonitor.setStatus(process, Status.RUNNING);
             process.run();
         }
     }
