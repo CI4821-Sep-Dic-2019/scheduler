@@ -26,7 +26,7 @@ public class StatusMapMonitor {
      * @param status    Status of the process.
      */
     public synchronized void setStatus(Process process, Status status) {
-        log.add(logName + " Set process" + process.getPid() + " to " + status);
+        log.add(logName + " Set process " + process.getPid() + " to " + status);
         statusMap.put(process, status);
         if (statusMap.size() == 1) {
             notifyAll();

@@ -20,7 +20,7 @@ public class Process {
 
     private final Integer cpuTime;
 
-    private Long vruntime = 0L;
+    private Double vruntime;
 
     private boolean ioBurst = false;
 
@@ -39,7 +39,7 @@ public class Process {
         this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.statusMapMonitor = statusMapMonitor;
 
-        vruntime = 0L;
+        vruntime = 0D;
 
         this.cpuTime = cpuTime;
     }
@@ -72,7 +72,9 @@ public class Process {
                 log.add(logName + " Interrupted");
             }
         }
-
+        if(!ioBurst) {
+            vruntime +=  Double.valueOf(burst)*priority;
+        }
         // Check if process ended
         if (taskIterator.hasNext()) {
             ioBurst = !ioBurst;
