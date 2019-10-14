@@ -45,6 +45,10 @@ public class ProcessTree {
         tree.remove(process);
     }
 
+    public boolean isEmpty() {
+        return tree.isEmpty();
+    }
+
     public int size() {
         return tree.size();
     }
