@@ -48,6 +48,18 @@ public class CPUTreeMonitor {
         return cpu;
     }
 
+    public synchronized CPU pollLast() {
+        while(cpuTree.isEmpty()) {
+            try{
+                wait();
+            } catch (InterruptedException e) {
+                log.add(logName + " Interrupted.");
+            }
+        }
+        CPU cpu = cpuTree.pollLast();
+        log.add(logName + " Poll CPU with id " + cpu.getId());
+        return cpu;
+    }
     /**
      * Add a {@code CPU} to the {@code TreeSet<CPU>} to be tracked.
      * @param cpu       CPU to be added.

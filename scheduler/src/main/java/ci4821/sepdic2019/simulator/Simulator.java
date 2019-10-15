@@ -53,7 +53,7 @@ public class Simulator {
         Integer cores = Integer.parseInt(data.get("cores").toString());
 
         for (int i = 0; i < cores; i++) {
-            CPU cpu = new CPU(i, cpuTreeMonitor, statusMapMonitor, log);
+            CPU cpu = new CPU(i, allocatedCPUMonitor, cpuTreeMonitor, statusMapMonitor, log);
             log.add("Creating cpu: " + i);
             cpuTreeMonitor.addCPU(cpu);
         }
