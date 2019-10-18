@@ -120,21 +120,22 @@ public class Process {
             clock.increment();
         }
         log.add(logName + " Ran for " + timeToRun + " time units");
-        // Si la tarea no la terminó, la siguiente tarea será lo que faltó.
-        if (timeToRun < burst) {
-            log.add(logName + " Reached maximum execution time.");
-            taskDeque.addFirst(burst - timeToRun);
-        }
 
         // Aumentar vruntime
         if(!ioBurst) {
             vruntime +=  Double.valueOf(burst) / priority;
         }
 
+        // Si la tarea no la terminó, la siguiente tarea será lo que faltó.
+        if (timeToRun < burst) {
+            log.add(logName + " Reached maximum execution time.");
+            taskDeque.addFirst(burst - timeToRun);
+        } else {
+            ioBurst = !ioBurst;
+        }
+
         // Check if process ended
         if (!taskDeque.isEmpty()) {
-            ioBurst = !ioBurst;
-
             if (!ioBurst) waitForCPU();
             else waitForResource();
 
