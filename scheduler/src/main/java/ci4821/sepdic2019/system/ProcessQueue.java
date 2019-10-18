@@ -2,6 +2,7 @@ package ci4821.sepdic2019.system;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.stream.Collectors;
 
 public class ProcessQueue {
     private Queue<Process> pQueue;
@@ -12,9 +13,8 @@ public class ProcessQueue {
 
     public synchronized void add(Process process) {
         pQueue.add(process);
-        if (pQueue.size() == 1) {
-            notifyAll();
-        }
+        notifyAll();
+        System.out.println("Queue: " + pQueue.stream().map(Process::getPid).collect(Collectors.toList()));
     }
 
     public synchronized Process poll() {
@@ -26,6 +26,7 @@ public class ProcessQueue {
                 System.out.println("ProcessQueue interrupted");
             }
         }
+        System.out.println("Queue: " + pQueue.stream().map(Process::getPid).collect(Collectors.toList()));
         return pQueue.poll();
     }
 

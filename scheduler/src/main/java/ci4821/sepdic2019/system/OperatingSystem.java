@@ -19,25 +19,34 @@ public class OperatingSystem {
     private final Resource resource;
     private final Log log;
     private final Integer loadBalancerTime;
-    private final Integer cpuTime;
     private final LoadBalancer loadBalancer;
+    private final Timer timer;
+    private final Clock clock;
     
-    public OperatingSystem(CPUTreeMonitor cpuTreeMonitor, AllocatedCPUMonitor allocatedCPUMonitor,
-        StatusMapMonitor statusMapMonitor, Resource resource, 
-        Integer loadBalancerTime, Integer cpuTime, Log log
+    public OperatingSystem(
+        CPUTreeMonitor cpuTreeMonitor, 
+        AllocatedCPUMonitor allocatedCPUMonitor,
+        StatusMapMonitor statusMapMonitor, 
+        Resource resource, 
+        Integer loadBalancerTime, 
+        Log log,
+        Clock clock
     ) {
         this.cpuTreeMonitor = cpuTreeMonitor;
         this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.statusMapMonitor = statusMapMonitor;
         this.loadBalancerTime = loadBalancerTime;
-        this.cpuTime = cpuTime;
         this.resource = resource;
         this.log = log;
 
         this.loadBalancer = new LoadBalancer(cpuTreeMonitor, allocatedCPUMonitor,
             log, loadBalancerTime);
+
+        this.clock = clock;
+        this.timer = new Timer(clock);
     }
 
+    // TODO: create process in each time of arrival
     public void createProcess(ArrayList<Object> procs) {
         for (int i = 0; i < procs.size(); i++) {
             // Objeto con la información necesaria para simular al proceso
@@ -54,10 +63,17 @@ public class OperatingSystem {
             int pid = Integer.parseInt(process.get("pid").toString());
 
             Process newProcess = new Process(
-                pid, taskIterator, 
+                pid, 
+                taskIterator, 
                 Double.parseDouble(process.get("pid").toString()), 
-                resource, log, cpuTreeMonitor, allocatedCPUMonitor, 
-                statusMapMonitor, cpuTime);
+                resource, 
+                log, 
+                cpuTreeMonitor, 
+                allocatedCPUMonitor, 
+                statusMapMonitor,
+                clock.getClock(),
+                clock
+            );
 
             // Agregamos el proceso a los que esperan por este CPU            
             statusMapMonitor.setStatus(newProcess, Status.READY);

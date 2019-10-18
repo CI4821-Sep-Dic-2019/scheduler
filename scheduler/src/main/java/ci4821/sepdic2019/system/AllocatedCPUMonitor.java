@@ -26,6 +26,7 @@ public class AllocatedCPUMonitor {
      */
     public synchronized CPU getAllocatedCPU(Process process) {
         while (map.isEmpty() || map.get(process) == null) {
+            System.out.println("contains key " + map.containsKey(process));
             try {
                 wait();
             } catch (InterruptedException e) {

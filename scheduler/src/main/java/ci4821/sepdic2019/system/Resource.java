@@ -31,7 +31,7 @@ public class Resource implements Runnable {
         while (true) {
             Process process = pQueue.poll();
             log.add(logName + "  dequeue process " + process.getPid());
-            process.run();
+            process.run(null);
         }
     }
 }

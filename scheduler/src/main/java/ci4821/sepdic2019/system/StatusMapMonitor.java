@@ -28,9 +28,7 @@ public class StatusMapMonitor {
     public synchronized void setStatus(Process process, Status status) {
         log.add(logName + " Set process " + process.getPid() + " to " + status);
         statusMap.put(process, status);
-        if (statusMap.size() == 1) {
-            notifyAll();
-        }
+        notifyAll();
     }
 
     /**
@@ -47,7 +45,8 @@ public class StatusMapMonitor {
             }
         }
         log.add(logName + " Get status of process " + process.getPid());
-        return statusMap.get(process);
+        Status status = statusMap.get(process);
+        return status;
     }
 
     public synchronized void removeProcess(Process process) {
