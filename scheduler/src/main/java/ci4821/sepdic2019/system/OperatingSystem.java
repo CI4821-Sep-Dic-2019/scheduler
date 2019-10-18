@@ -6,8 +6,10 @@ import java.util.stream.Collectors;
 import ci4821.sepdic2019.ds.Log;
 import lombok.Data;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
 
@@ -53,11 +55,10 @@ public class OperatingSystem {
             Map<String, Object> process = (HashMap<String, Object>) procs.get(i);
 
             List<Object> tasks = (ArrayList<Object>) process.get("tasks");
-            Iterator<Integer> taskIterator = tasks.stream()
+            Deque<Integer> taskIterator = new LinkedList<> (tasks.stream()
                 .map(Object::toString)
                 .map(x -> Integer.parseInt(x))
-                .collect(Collectors.toList())
-                .iterator();
+                .collect(Collectors.toList()));
 
             CPU nextCPU = cpuTreeMonitor.pollIdle(); // CPU con menos carga
             int pid = Integer.parseInt(process.get("pid").toString());

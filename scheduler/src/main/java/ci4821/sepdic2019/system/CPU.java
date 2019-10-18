@@ -93,7 +93,8 @@ public class CPU implements Runnable {
             // Time waiting divided by current number of processes.
             int treeSize = getProcessTree().size();
             int timeWaiting = clock.getClock() - procLastTime;
-            Integer maxTimeToRun = treeSize > 0 && timeWaiting > 0 ? (int) Math.ceil(timeWaiting/treeSize) : null;
+            Integer maxTimeToRun = (treeSize > 0 && timeWaiting > 0) ? ((int) Math.ceil(timeWaiting/treeSize)) : null;
+
             statusMapMonitor.setStatus(process, Status.RUNNING);
             log.add(logName + "  start running process " + process.getPid());
             process.run(maxTimeToRun);

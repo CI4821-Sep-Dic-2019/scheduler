@@ -1,6 +1,6 @@
 package ci4821.sepdic2019.system;
 
-import java.util.Iterator;
+import java.util.Deque;
 
 import ci4821.sepdic2019.ds.Log;
 import lombok.Data;
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
 public class Process {
     @EqualsAndHashCode.Include
     private final Integer pid;
-    private final Iterator<Integer> taskIterator;
+    private final Deque<Integer> taskDeque;
     private final double priority;
     private final Resource resource;
     private final Log log;
@@ -43,7 +43,7 @@ public class Process {
      */
     public Process(
         Integer pid, 
-        Iterator<Integer> taskIterator, 
+        Deque<Integer> taskDeque, 
         double priority, 
         Resource resource, 
         Log log,
@@ -56,7 +56,7 @@ public class Process {
         this.pid = pid;
         this.logName = "[Process " + pid + "]";
 
-        this.taskIterator = taskIterator;
+        this.taskDeque = taskDeque;
         this.priority = priority;
         this.resource = resource;
         this.log = log;
@@ -78,6 +78,7 @@ public class Process {
     public void waitForCPU() {
         log.add(logName + " Wait for CPU");
         statusMapMonitor.setStatus(this, Status.READY);
+        setLastTime(clock.getClock());
         allocatedCPUMonitor.setAllocatedCPU(this, getCPU());
     }
 
@@ -108,25 +109,30 @@ public class Process {
         return lastTime;
     }
 
-    // TODO: if current task is interrupted before finishing, next time process should finish it.
     public synchronized void run(Integer maxTimeToRun) {
-        Integer burst = taskIterator.next();
+        Integer burst = taskDeque.removeFirst();
         String type = ioBurst ? " Waiting for resource " + resource.getName() : " Running at cpu " + getCPU().getId();
 
-        int timeToRun = maxTimeToRun != null ? Math.min(maxTimeToRun, burst) : burst;
+        int timeToRun = maxTimeToRun != null && maxTimeToRun != 0 ? Math.min(maxTimeToRun, burst) : burst;
         int initTime = clock.getClock();
         for (int i=0; clock.getClock() - initTime < timeToRun; i++) {
             log.add(logName + type + '(' + i + ')');
             clock.increment();
         }
-        incrementLastTime(timeToRun);
+        log.add(logName + " Ran for " + timeToRun + " time units");
+        // Si la tarea no la terminó, la siguiente tarea será lo que faltó.
+        if (timeToRun < burst) {
+            log.add(logName + " Reached maximum execution time.");
+            taskDeque.addFirst(burst - timeToRun);
+        }
 
+        // Aumentar vruntime
         if(!ioBurst) {
             vruntime +=  Double.valueOf(burst) / priority;
         }
 
         // Check if process ended
-        if (taskIterator.hasNext()) {
+        if (!taskDeque.isEmpty()) {
             ioBurst = !ioBurst;
 
             if (!ioBurst) waitForCPU();

@@ -14,7 +14,6 @@ public class ProcessQueue {
     public synchronized void add(Process process) {
         pQueue.add(process);
         notifyAll();
-        System.out.println("Queue: " + pQueue.stream().map(Process::getPid).collect(Collectors.toList()));
     }
 
     public synchronized Process poll() {
@@ -26,7 +25,6 @@ public class ProcessQueue {
                 System.out.println("ProcessQueue interrupted");
             }
         }
-        System.out.println("Queue: " + pQueue.stream().map(Process::getPid).collect(Collectors.toList()));
         return pQueue.poll();
     }
 
