@@ -72,6 +72,7 @@ public class Process {
 
     public void waitForResource() {
         statusMapMonitor.setStatus(this, Status.BLOCKED);
+        log.add_proc(Integer.toString(this.pid), Double.toString(this.priority), "", "RUNNING", Integer.toString(getCPU().getId()));
         resource.enqueue(this);
     }
 
@@ -84,6 +85,10 @@ public class Process {
 
     public CPU getCPU() {
         return allocatedCPUMonitor.getAllocatedCPU(this);
+    }
+
+    public double getPrio() {
+        return this.priority;
     }
 
     /**

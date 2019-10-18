@@ -46,6 +46,14 @@ public class CPU implements Runnable {
     }
 
     /**
+     * Obtener id del proceso.
+     * @return process       Id del proceso
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
      * Agregar proceso al árbol rojo negro de este CPU.
      * @param process       Proceso a agregar
      */
@@ -97,6 +105,7 @@ public class CPU implements Runnable {
 
             statusMapMonitor.setStatus(process, Status.RUNNING);
             log.add(logName + "  start running process " + process.getPid());
+            log.add_proc(Integer.toString(process.getPid()), Double.toString(process.getPrio()), "", "RUNNING", Integer.toString(this.id));
             process.run(maxTimeToRun);
 
             if (processTree.isEmpty()) {

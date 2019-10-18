@@ -80,7 +80,7 @@ public class OperatingSystem {
 
             // Agregamos el proceso a los que esperan por este CPU            
             statusMapMonitor.setStatus(newProcess, Status.READY);
-            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", "");
+            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", Integer.toString(nextCPU.getId()));
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
 
             // Actualizamos el conjunto de CPUs

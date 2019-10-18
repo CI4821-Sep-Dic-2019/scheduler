@@ -23,7 +23,7 @@ public class SimulatorFrame {
     public SimulatorFrame() {
         frame= new JFrame();
         frame.setTitle("LINUX SCHEDULER");
-		frame.setSize(600, 400);
+		frame.setSize(800, 600);
 		frame.setLocation(200, 200);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
