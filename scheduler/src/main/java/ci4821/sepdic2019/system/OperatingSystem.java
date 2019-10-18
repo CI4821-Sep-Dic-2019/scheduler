@@ -77,9 +77,7 @@ public class OperatingSystem {
         while (i < ordered_procs.size()) {
             // Objeto con la información necesaria para simular al proceso
             Map<String, Object> process = ordered_procs.get(i);
-            if (Integer.parseInt(process.get("time").toString()) < clock.getClock())
-                continue;
-
+            while (clock.getClock() < Integer.parseInt(process.get("time").toString()));
             List<Object> tasks = (ArrayList<Object>) process.get("tasks");
             Deque<Integer> taskIterator = new LinkedList<> (tasks.stream()
                 .map(Object::toString)
