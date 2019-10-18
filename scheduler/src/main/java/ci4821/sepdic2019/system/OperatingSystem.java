@@ -12,6 +12,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.List;
+import java.util.Collections;
+import java.util.Comparator;
 
 @Data
 public class OperatingSystem {
@@ -48,12 +50,34 @@ public class OperatingSystem {
         this.timer = new Timer(clock);
     }
 
-    // TODO: create process in each time of arrival
     public void createProcess(ArrayList<Object> procs) {
-        for (int i = 0; i < procs.size(); i++) {
-            // Objeto con la información necesaria para simular al proceso
-            Map<String, Object> process = (HashMap<String, Object>) procs.get(i);
 
+        ArrayList<Map<String, Object>> ordered_procs =
+            new ArrayList<Map<String, Object>> (procs.stream()
+                .map(p -> (HashMap<String, Object>) p)
+                .collect(Collectors.toList()));
+
+        Collections.sort(
+            ordered_procs,
+            new Comparator<Map<String, Object>> () {
+                @Override
+                public int compare(Map<String, Object> p1, Map<String, Object> p2) {
+                    int comp = new Integer(Integer.parseInt(p1.get("time").toString()))
+                                .compareTo(Integer.parseInt(p2.get("time").toString()));
+                    if (comp == 0) {
+                        return new Integer(Integer.parseInt(p1.get("pid").toString()))
+                                .compareTo(Integer.parseInt(p2.get("pid").toString()));
+                    }
+                    return comp;
+                }
+            }
+        );
+
+        int i = 0;
+        while (i < ordered_procs.size()) {
+            // Objeto con la información necesaria para simular al proceso
+            Map<String, Object> process = ordered_procs.get(i);
+            while (clock.getClock() < Integer.parseInt(process.get("time").toString()));
             List<Object> tasks = (ArrayList<Object>) process.get("tasks");
             Deque<Integer> taskIterator = new LinkedList<> (tasks.stream()
                 .map(Object::toString)
@@ -86,7 +110,7 @@ public class OperatingSystem {
             // Actualizamos el conjunto de CPUs
             cpuTreeMonitor.addCPU(nextCPU);
 
-            
+            i++;
         }
     }
 }
