@@ -76,14 +76,17 @@ public class OperatingSystem {
                 clock
             );
 
+            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "CREATED", "");
+
             // Agregamos el proceso a los que esperan por este CPU            
             statusMapMonitor.setStatus(newProcess, Status.READY);
+            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", "");
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
 
             // Actualizamos el conjunto de CPUs
             cpuTreeMonitor.addCPU(nextCPU);
 
-            log.add("Process " + pid + " created");
+            
         }
     }
 }

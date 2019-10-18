@@ -74,8 +74,10 @@ public class Simulator {
     }
 
     public void startSimulation() {
+        
+
         // Call createProcess from here
-        log.add("Start simulation");
+        // log.add("Start simulation");
         ArrayList<Object> procs = (ArrayList<Object>)data.get("processes");
         system.createProcess(procs);
     }
