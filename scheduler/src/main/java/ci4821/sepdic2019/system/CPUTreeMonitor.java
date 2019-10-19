@@ -130,4 +130,12 @@ public class CPUTreeMonitor {
             }
         }
     }
+
+    public synchronized void updateCPUsUsage() {
+        System.out.println("CPU's = " + cpuTree.size());
+        for (CPU cpu : cpuTree) {
+            cpu.updateUsage();
+            System.out.println("CPU " + cpu.getId() + " : busy = " + cpu.isBusy() + ", process = " + cpu.processNumber());
+        }
+    }
 }

@@ -47,7 +47,7 @@ public class OperatingSystem {
             log, loadBalancerTime);
 
         this.clock = clock;
-        this.timer = new Timer(clock);
+        this.timer = new Timer(clock, cpuTreeMonitor);
     }
 
     public void createProcess(ArrayList<Object> procs) {

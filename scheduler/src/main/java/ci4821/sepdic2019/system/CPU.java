@@ -16,6 +16,8 @@ public class CPU implements Runnable {
     private Thread t;
     private final String logName;
     private final Clock clock;
+    private boolean busy;
+    private int usage;
 
     /**
      * @param id                    Identificador del CPU
@@ -41,6 +43,8 @@ public class CPU implements Runnable {
         this.statusMapMonitor = statusMapMonitor;
         this.log = log;
         this.clock = clock;
+        this.busy = false;
+        this.usage = 0;
         t = new Thread(this, "CPU: " + id);
         t.start();
     }
@@ -93,9 +97,22 @@ public class CPU implements Runnable {
         allocatedCPUMonitor.setAllocatedCPU(process, this);
     }
 
+    public void updateUsage() {
+        usage += (isBusy() ? 1 : 0);
+    }
+
+    public boolean isBusy() {
+        return busy || !processTree.isEmpty();
+    }
+
+    public int processNumber() {
+        return processTree.size();
+    }
+
     public void run() {
         while(true) {
             Process process = pollProcess();
+            busy = true;
             int procLastTime = process.getLastTime();
 
             // Time waiting divided by current number of processes.
@@ -107,7 +124,7 @@ public class CPU implements Runnable {
             log.add(logName + "  start running process " + process.getPid());
             log.add_proc(Integer.toString(process.getPid()), Double.toString(process.getPrio()), "", "RUNNING", Integer.toString(this.id));
             process.run(maxTimeToRun);
-
+            busy = false;
             if (processTree.isEmpty()) {
                 pullLoadBalancing();
             }
