@@ -25,6 +25,17 @@ public class Clock {
     }
 
     /**
+     * Wait for clock to move forward.
+     */
+    public synchronized void waitForClock() {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+            log.add(logName + " Interrupted");
+        }
+    }
+
+    /**
      * Increment clock counter by one.
      */
     public synchronized void increment() {
@@ -34,5 +45,6 @@ public class Clock {
             log.add(logName + " Interrupted");
         }
         clock++;
+        notifyAll();
     }
 }
