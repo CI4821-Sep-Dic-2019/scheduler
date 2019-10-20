@@ -64,6 +64,7 @@ public class CPU implements Runnable {
     public void addProcess(Process process) {
         log.add(logName + " add process " + process.getPid());
         processTree.addProcess(process);
+        cpusMonitor.notifyAddProcess();
     }
 
     /**

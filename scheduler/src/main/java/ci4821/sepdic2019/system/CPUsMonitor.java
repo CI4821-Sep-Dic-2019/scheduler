@@ -45,6 +45,10 @@ public class CPUsMonitor {
         return min_cpu;
     }
 
+    public synchronized void notifyAddProcess() {
+        notifyAll();
+    }
+
     public synchronized CPU getMaxCPU() {
         while(cpus.isEmpty()) {
             try{
@@ -59,6 +63,20 @@ public class CPUsMonitor {
                 max_cpu = cpu;
             }
         }
+
+        while (max_cpu.processesNumber() == 0) {
+            try{
+                wait();
+            } catch (InterruptedException e) {
+                log.add(logName + " Interrupted.");
+            }
+            for (CPU cpu : cpus) {
+                if (cpu.processesNumber() > max_cpu.processesNumber()) {
+                    max_cpu = cpu;
+                }
+            }
+        }
+
         log.add(logName + " Get CPU with id " + max_cpu.getId());
         return max_cpu;
     }
