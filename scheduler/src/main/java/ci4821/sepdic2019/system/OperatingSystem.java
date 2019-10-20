@@ -49,7 +49,7 @@ public class OperatingSystem {
 
         this.clock = clock;
         this.generalStatistics = new GeneralStatistics(statusMapMonitor, cpusMonitor);
-        this.timer = new Timer(clock, cpusMonitor);
+        this.timer = new Timer(clock, cpusMonitor, generalStatistics);
     }
 
     public void createProcess(ArrayList<Object> procs) {
