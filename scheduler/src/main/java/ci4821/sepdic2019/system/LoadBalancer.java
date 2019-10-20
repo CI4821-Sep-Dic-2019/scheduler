@@ -9,17 +9,17 @@ import lombok.Data;
 
 @Data
 public class LoadBalancer implements Runnable {
-    private final CPUTreeMonitor cpuTreeMonitor;
+    private final CPUsMonitor cpusMonitor;
     private final AllocatedCPUMonitor allocatedCPUMonitor;
     private final Log log;
     private final Integer cpuTime; // in miliseconds
     private Thread t;
     private final String logName = "[LoadBalancer]";
 
-    public LoadBalancer(CPUTreeMonitor cpuTreeMonitor, AllocatedCPUMonitor allocatedCPUMonitor,
+    public LoadBalancer(CPUsMonitor cpusMonitor, AllocatedCPUMonitor allocatedCPUMonitor,
         Log log, Integer cpuTime
     ) {
-        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.cpusMonitor = cpusMonitor;
         this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.log = log;
         this.cpuTime = cpuTime;
@@ -35,7 +35,7 @@ public class LoadBalancer implements Runnable {
                 log.add(logName + " Interrupted");
             }
             log.add(logName + " Push load balancing started");
-            cpuTreeMonitor.pushLoadBalancing(allocatedCPUMonitor);
+            cpusMonitor.pushLoadBalancing(allocatedCPUMonitor);
 
         }
     }

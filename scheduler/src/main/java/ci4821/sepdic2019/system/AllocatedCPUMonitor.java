@@ -8,14 +8,14 @@ import lombok.Getter;
 public class AllocatedCPUMonitor {
     private final Map<Process, CPU> map;
     private final Log log;
-    private final CPUTreeMonitor cpuTree;
+    private final CPUsMonitor cpus;
     private final StatusMapMonitor statusMap;
     private final String logName = "[AllocatedCPUMonitor]";
 
-    public AllocatedCPUMonitor(Log log, CPUTreeMonitor cpuTree, StatusMapMonitor statusMap) {
+    public AllocatedCPUMonitor(Log log, CPUsMonitor cpus, StatusMapMonitor statusMap) {
         this.log = log;
         this.map = new HashMap<>();
-        this.cpuTree = cpuTree;
+        this.cpus = cpus;
         this.statusMap = statusMap;
     }
 

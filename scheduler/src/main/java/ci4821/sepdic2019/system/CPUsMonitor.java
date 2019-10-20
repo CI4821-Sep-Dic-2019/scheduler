@@ -12,12 +12,12 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Getter
-public class CPUTreeMonitor {
+public class CPUsMonitor {
     private final ArrayList<CPU> cpus;
-    private final String logName = "[CPUTreeMonitor]";
+    private final String logName = "[CPUsMonitor]";
     private final Log log;
     
-    public CPUTreeMonitor(Log log) {
+    public CPUsMonitor(Log log) {
         this.log = log;
         this.cpus = new ArrayList<CPU>();
     }
@@ -63,7 +63,7 @@ public class CPUTreeMonitor {
         return max_cpu;
     }
     /**
-     * Add a {@code CPU} to the {@code TreeSet<CPU>} to be tracked.
+     * Add a {@code CPU} to the {@code ArrayList<CPU>} to be tracked.
      * @param cpu       CPU to be added.
      */
     public synchronized void addCPU(CPU cpu) {        
@@ -99,13 +99,13 @@ public class CPUTreeMonitor {
         // First extract processes to move from each CPU red black tree
         Set<Process> processesToMove = new HashSet<>();
         for (CPU cpu : cpus) {
-            while(cpu.getProcessTree().size() > expectedSize) {
+            while(cpu.processesNumber() > expectedSize) {
                 processesToMove.add(cpu.getProcessTree().getProcess());
             }
         }
         Iterator<Process> processIterator = processesToMove.iterator();
         for (CPU cpu : cpus) {
-            while(cpu.getProcessTree().size() < expectedSize && 
+            while(cpu.processesNumber() < expectedSize && 
                 processIterator.hasNext()
             ) {
                 allocatedCPUMonitor.setAllocatedCPU(processIterator.next(), cpu);

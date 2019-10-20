@@ -9,7 +9,7 @@ import lombok.ToString;
 public class CPU implements Runnable {
     private final int id;
     private final AllocatedCPUMonitor allocatedCPUMonitor;
-    private final CPUTreeMonitor cpuTreeMonitor;
+    private final CPUsMonitor cpusMonitor;
     private final StatusMapMonitor statusMapMonitor;
     private final Log log;
     private ProcessTree processTree;
@@ -22,7 +22,7 @@ public class CPU implements Runnable {
     /**
      * @param id                    Identificador del CPU
      * @param log                   Estructura para reportar las acciones
-     * @param cpuTreeMonitor        Monitor del árbol de CPUs ordenado por carga
+     * @param cpusMonitor           Monitor del árbol de CPUs ordenado por carga
      * @param allocatedCPUMonitor   Monitor del mapa Proceso -> CPU asignado
      * @param statusMapMonitor      Monitor del mapa Proceso -> Status
      * @param clock                 Estructura para simular al reloj.
@@ -30,7 +30,7 @@ public class CPU implements Runnable {
     public CPU(
         int id,
         AllocatedCPUMonitor allocatedCPUMonitor,
-        CPUTreeMonitor cpuTreeMonitor,
+        CPUsMonitor cpusMonitor,
         StatusMapMonitor statusMapMonitor,
         Log log,
         Clock clock
@@ -39,7 +39,7 @@ public class CPU implements Runnable {
         this.id = id;
         this.logName = "[CPU " + id + "]";
         this.allocatedCPUMonitor = allocatedCPUMonitor;
-        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.cpusMonitor = cpusMonitor;
         this.statusMapMonitor = statusMapMonitor;
         this.log = log;
         this.clock = clock;
@@ -90,7 +90,7 @@ public class CPU implements Runnable {
      * Migrar un proceso del CPU con más carga a este.
      */
     public void pullLoadBalancing() {
-        CPU cpu = cpuTreeMonitor.getMaxCPU();
+        CPU cpu = cpusMonitor.getMaxCPU();
         Process process = cpu.pollProcess();
         allocatedCPUMonitor.setAllocatedCPU(process, this);
     }
