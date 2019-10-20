@@ -19,7 +19,7 @@ public class Process {
 
     private int lastTime = 0;
 
-    private final CPUTreeMonitor cpuTreeMonitor;
+    private final CPUsMonitor cpusMonitor;
     private final AllocatedCPUMonitor allocatedCPUMonitor;
     private final StatusMapMonitor statusMapMonitor;
 
@@ -35,10 +35,10 @@ public class Process {
      * @param priority              Prioridad del proceso
      * @param resource              Recurso de I/O
      * @param log                   Estructura para reportar las acciones
-     * @param cpuTreeMonitor        Monitor del árbol de CPUs ordenado por carga
+     * @param cpusMonitor        Monitor del árbol de CPUs ordenado por carga
      * @param allocatedCPUMonitor   Monitor del mapa Proceso -> CPU asignado
      * @param statusMapMonitor      Monitor del mapa Proceso -> Status
-     * @param firstTime            Tiempo de llegada del proceso
+     * @param firstTime             Tiempo de llegada del proceso
      * @param clock                 Estructura para simular al reloj.
      */
     public Process(
@@ -47,7 +47,7 @@ public class Process {
         double priority, 
         Resource resource, 
         Log log,
-        CPUTreeMonitor cpuTreeMonitor, 
+        CPUsMonitor cpusMonitor, 
         AllocatedCPUMonitor allocatedCPUMonitor, 
         StatusMapMonitor statusMapMonitor, 
         int firstTime,
@@ -61,7 +61,7 @@ public class Process {
         this.resource = resource;
         this.log = log;
 
-        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.cpusMonitor = cpusMonitor;
         this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.statusMapMonitor = statusMapMonitor;
 
@@ -110,7 +110,7 @@ public class Process {
      * 
      * @return last unit of time that process was running.
      */
-    public synchronized int getLastTime() {
+    public int getLastTime() {
         return lastTime;
     }
 
@@ -121,8 +121,8 @@ public class Process {
         int timeToRun = maxTimeToRun != null && maxTimeToRun != 0 ? Math.min(maxTimeToRun, burst) : burst;
         int initTime = clock.getClock();
         for (int i=0; clock.getClock() - initTime < timeToRun; i++) {
+            clock.waitForClock();
             log.add(logName + type + '(' + i + ')');
-            clock.increment();
         }
         log.add(logName + " Ran for " + timeToRun + " time units");
 
@@ -145,10 +145,9 @@ public class Process {
             else waitForResource();
 
         } else {
-
+            System.out.println("FINISHED...");
             CPU cpu = getCPU();
             cpu.removeProcess(this);
-            cpuTreeMonitor.updateCPU(cpu);
 
             allocatedCPUMonitor.removeProcess(this);
             statusMapMonitor.removeProcess(this);

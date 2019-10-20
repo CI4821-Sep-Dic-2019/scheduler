@@ -11,15 +11,20 @@ import lombok.Data;
 public class Timer implements Runnable {
     private final Clock clock;
     private Thread t;
-    public Timer (Clock clock) {
+    private final CPUsMonitor cpusMonitor;
+
+    public Timer (Clock clock, CPUsMonitor cpusMonitor) {
         this.clock = clock;
+        this.cpusMonitor = cpusMonitor;
         t = new Thread(this, "Timer");
         t.start();
     }
 
     public void run() {
         while(true) {
+            System.out.println("Time: " + clock.getClock());
             clock.increment();
+            cpusMonitor.updateCPUsUsage();
         }
     }
 }

@@ -9,18 +9,20 @@ import lombok.ToString;
 public class CPU implements Runnable {
     private final int id;
     private final AllocatedCPUMonitor allocatedCPUMonitor;
-    private final CPUTreeMonitor cpuTreeMonitor;
+    private final CPUsMonitor cpusMonitor;
     private final StatusMapMonitor statusMapMonitor;
     private final Log log;
     private ProcessTree processTree;
     private Thread t;
     private final String logName;
     private final Clock clock;
+    private boolean busy;
+    private int usage;
 
     /**
      * @param id                    Identificador del CPU
      * @param log                   Estructura para reportar las acciones
-     * @param cpuTreeMonitor        Monitor del árbol de CPUs ordenado por carga
+     * @param cpusMonitor           Monitor del árbol de CPUs ordenado por carga
      * @param allocatedCPUMonitor   Monitor del mapa Proceso -> CPU asignado
      * @param statusMapMonitor      Monitor del mapa Proceso -> Status
      * @param clock                 Estructura para simular al reloj.
@@ -28,7 +30,7 @@ public class CPU implements Runnable {
     public CPU(
         int id,
         AllocatedCPUMonitor allocatedCPUMonitor,
-        CPUTreeMonitor cpuTreeMonitor,
+        CPUsMonitor cpusMonitor,
         StatusMapMonitor statusMapMonitor,
         Log log,
         Clock clock
@@ -37,10 +39,12 @@ public class CPU implements Runnable {
         this.id = id;
         this.logName = "[CPU " + id + "]";
         this.allocatedCPUMonitor = allocatedCPUMonitor;
-        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.cpusMonitor = cpusMonitor;
         this.statusMapMonitor = statusMapMonitor;
         this.log = log;
         this.clock = clock;
+        this.busy = false;
+        this.usage = 0;
         t = new Thread(this, "CPU: " + id);
         t.start();
     }
@@ -78,8 +82,7 @@ public class CPU implements Runnable {
      */
     public Process pollProcess() {
         Process process = processTree.getProcess();
-        log.add(logName + " poll process " + process.getPid());        
-        cpuTreeMonitor.updateCPU(this);
+        log.add(logName + " poll process " + process.getPid());
         return process;
     }
 
@@ -87,15 +90,41 @@ public class CPU implements Runnable {
      * Migrar un proceso del CPU con más carga a este.
      */
     public void pullLoadBalancing() {
-        CPU cpu = cpuTreeMonitor.pollLast();
+        CPU cpu = cpusMonitor.getMaxCPU();
         Process process = cpu.pollProcess();
-        log.add(logName + " pull load balancing from CPU: " + cpu.getId());
         allocatedCPUMonitor.setAllocatedCPU(process, this);
+    }
+
+    public void updateUsage() {
+        usage += (isBusy() ? 1 : 0);
+    }
+
+    public int workingTime() {
+        return usage;
+    }
+
+    public int sleepingTime() {
+        return clock.getClock() - usage;
+    }
+
+    public double usagePercentage() {
+        double total = clock.getClock();
+        double percentage = (double) usage/total*100;
+        return percentage;
+    }
+
+    public boolean isBusy() {
+        return busy || !processTree.isEmpty();
+    }
+
+    public int processesNumber() {
+        return processTree.size();
     }
 
     public void run() {
         while(true) {
             Process process = pollProcess();
+            busy = true;
             int procLastTime = process.getLastTime();
 
             // Time waiting divided by current number of processes.
@@ -107,8 +136,9 @@ public class CPU implements Runnable {
             log.add(logName + "  start running process " + process.getPid());
             log.add_proc(Integer.toString(process.getPid()), Double.toString(process.getPrio()), "", "RUNNING", Integer.toString(this.id));
             process.run(maxTimeToRun);
-
+            busy = false;
             if (processTree.isEmpty()) {
+                log.add(logName + " Pull load balancing from CPU: ");
                 pullLoadBalancing();
             }
         }

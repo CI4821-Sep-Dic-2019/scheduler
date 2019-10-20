@@ -12,89 +12,72 @@ import java.util.Iterator;
 import java.util.Set;
 
 @Getter
-public class CPUTreeMonitor {
-    private final TreeSet<CPU> cpuTree;
-    private final String logName = "[CPUTreeMonitor]";
+public class CPUsMonitor {
+    private final ArrayList<CPU> cpus;
+    private final String logName = "[CPUsMonitor]";
     private final Log log;
     
-    public CPUTreeMonitor(Log log) {
+    public CPUsMonitor(Log log) {
         this.log = log;
-        this.cpuTree = new TreeSet<CPU>(new Comparator<CPU> () {
-            @Override
-            public int compare(CPU cpu1, CPU cpu2) {
-                int comp = cpu1.getProcessTree().size() - cpu2.getProcessTree().size();
-                if (comp == 0) {
-                    return cpu1.getId() - cpu2.getId();
-                }
-                return comp;
-            }
-        });
+        this.cpus = new ArrayList<CPU>();
     }
 
     /**
-     * Get and pop {@code CPU} with less processes assigned to it.
+     * Get {@code CPU} with less processes assigned to it.
      * @return      CPU with less load.
      */
-    public synchronized CPU pollIdle() {
-        while(cpuTree.isEmpty()) {
+    public synchronized CPU getMinCPU() {
+        while(cpus.isEmpty()) {
             try {
                 wait();
             } catch (InterruptedException e) {
                 log.add(logName + " Interrupted.");
             }
         }
-        CPU cpu = cpuTree.pollFirst();
-        log.add(logName + " Poll CPU with id " + cpu.getId());
-        return cpu;
+
+        CPU min_cpu = cpus.get(0);
+        for (CPU cpu : cpus) {
+            if (cpu.processesNumber() < min_cpu.processesNumber()) {
+                min_cpu = cpu;
+            }
+        }
+        log.add(logName + " Get CPU with id " + min_cpu.getId());
+        return min_cpu;
     }
 
-    public synchronized CPU pollLast() {
-        while(cpuTree.isEmpty()) {
+    public synchronized CPU getMaxCPU() {
+        while(cpus.isEmpty()) {
             try{
                 wait();
             } catch (InterruptedException e) {
                 log.add(logName + " Interrupted.");
             }
         }
-        CPU cpu = cpuTree.pollLast();
-        log.add(logName + " Poll CPU with id " + cpu.getId());
-        return cpu;
+        CPU max_cpu = cpus.get(0);
+        for (CPU cpu : cpus) {
+            if (cpu.processesNumber() > max_cpu.processesNumber()) {
+                max_cpu = cpu;
+            }
+        }
+        log.add(logName + " Get CPU with id " + max_cpu.getId());
+        return max_cpu;
     }
     /**
-     * Add a {@code CPU} to the {@code TreeSet<CPU>} to be tracked.
+     * Add a {@code CPU} to the {@code ArrayList<CPU>} to be tracked.
      * @param cpu       CPU to be added.
      */
     public synchronized void addCPU(CPU cpu) {        
-        cpuTree.add(cpu);
+        cpus.add(cpu);
         notifyAll();
     }
 
     /**
-     * Remove a {@code CPU} from the {@code TreeSet<CPU>}.
-     * @param cpu
-     */
-    public synchronized void removeCPU(CPU cpu) {
-        cpuTree.remove(cpu);
-    }
-
-    /**
-     * Size of the {@code TreeSet<CPU>}
+     * Size of the {@code ArrayList<CPU>}
      */
     public synchronized int size() {
-        return cpuTree.size();
+        return cpus.size();
     }
 
-    /**
-     * Updates a {@code CPU} in the {@code TreeSet<CPU>}.
-     * For updating, the CPU will be first removed and then
-     * it will be added.
-     * @param cpu
-     */
-    public synchronized void updateCPU(CPU cpu) {
-        log.add(logName + " Update CPU with id " + cpu.getId());
-        removeCPU(cpu);
-        addCPU(cpu);
-    }
 
     /**
      * Applies Push Load Balancing, given a {@code Set} of processes to migrate,
@@ -103,10 +86,9 @@ public class CPUTreeMonitor {
      * @param allocatedCPUMonitor   Monitor for updating CPUs.
      */
     public synchronized void pushLoadBalancing(AllocatedCPUMonitor allocatedCPUMonitor) {
-        int totalProcesses =
-            getCpuTree()
+        int totalProcesses = cpus
                 .stream()
-                .map(cpu -> cpu.getProcessTree().size())
+                .map(cpu -> cpu.processesNumber())
                 .map(i -> Integer.valueOf(i))
                 .reduce((x,y) -> x + y)
                 .orElse(0);
@@ -116,18 +98,32 @@ public class CPUTreeMonitor {
 
         // First extract processes to move from each CPU red black tree
         Set<Process> processesToMove = new HashSet<>();
-        for (CPU cpu : getCpuTree()) {
-            while(cpu.getProcessTree().size() > expectedSize) {
+        for (CPU cpu : cpus) {
+            while(cpu.processesNumber() > expectedSize) {
                 processesToMove.add(cpu.getProcessTree().getProcess());
             }
         }
         Iterator<Process> processIterator = processesToMove.iterator();
-        for (CPU cpu : new ArrayList<CPU>(cpuTree)) {
-            while(cpu.getProcessTree().size() < expectedSize && 
+        for (CPU cpu : cpus) {
+            while(cpu.processesNumber() < expectedSize && 
                 processIterator.hasNext()
             ) {
                 allocatedCPUMonitor.setAllocatedCPU(processIterator.next(), cpu);
             }
+        }
+    }
+
+    public synchronized void updateCPUsUsage() {
+        System.out.println("CPU's = " + cpus.size());
+        for (CPU cpu : cpus) {
+            cpu.updateUsage();
+            System.out.print("CPU " + cpu.getId());
+            System.out.println(" : busy = " + cpu.isBusy() +
+                ", process = " + cpu.processesNumber() +
+                ", working time = " + cpu.workingTime() +
+                ", sleeping time = " + cpu.sleepingTime() +
+                ", usage = " + cpu.usagePercentage()
+            );
         }
     }
 }

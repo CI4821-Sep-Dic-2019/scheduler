@@ -17,7 +17,7 @@ import java.util.Comparator;
 
 @Data
 public class OperatingSystem {
-    private final CPUTreeMonitor cpuTreeMonitor;
+    private final CPUsMonitor cpusMonitor;
     private final AllocatedCPUMonitor allocatedCPUMonitor;
     private final StatusMapMonitor statusMapMonitor;
     private final Resource resource;
@@ -28,7 +28,7 @@ public class OperatingSystem {
     private final Clock clock;
     
     public OperatingSystem(
-        CPUTreeMonitor cpuTreeMonitor, 
+        CPUsMonitor cpusMonitor,
         AllocatedCPUMonitor allocatedCPUMonitor,
         StatusMapMonitor statusMapMonitor, 
         Resource resource, 
@@ -36,18 +36,18 @@ public class OperatingSystem {
         Log log,
         Clock clock
     ) {
-        this.cpuTreeMonitor = cpuTreeMonitor;
+        this.cpusMonitor = cpusMonitor;
         this.allocatedCPUMonitor = allocatedCPUMonitor;
         this.statusMapMonitor = statusMapMonitor;
         this.loadBalancerTime = loadBalancerTime;
         this.resource = resource;
         this.log = log;
 
-        this.loadBalancer = new LoadBalancer(cpuTreeMonitor, allocatedCPUMonitor,
+        this.loadBalancer = new LoadBalancer(cpusMonitor, allocatedCPUMonitor,
             log, loadBalancerTime);
 
         this.clock = clock;
-        this.timer = new Timer(clock);
+        this.timer = new Timer(clock, cpusMonitor);
     }
 
     public void createProcess(ArrayList<Object> procs) {
@@ -84,17 +84,17 @@ public class OperatingSystem {
                 .map(x -> Integer.parseInt(x))
                 .collect(Collectors.toList()));
 
-            CPU nextCPU = cpuTreeMonitor.pollIdle(); // CPU con menos carga
+            CPU nextCPU = cpusMonitor.getMinCPU(); // CPU con menos carga
             int pid = Integer.parseInt(process.get("pid").toString());
 
             Process newProcess = new Process(
-                pid, 
-                taskIterator, 
-                Double.parseDouble(process.get("pid").toString()), 
-                resource, 
-                log, 
-                cpuTreeMonitor, 
-                allocatedCPUMonitor, 
+                pid,
+                taskIterator,
+                Double.parseDouble(process.get("pid").toString()),
+                resource,
+                log,
+                cpusMonitor,
+                allocatedCPUMonitor,
                 statusMapMonitor,
                 clock.getClock(),
                 clock
@@ -106,9 +106,6 @@ public class OperatingSystem {
             statusMapMonitor.setStatus(newProcess, Status.READY);
             log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", Integer.toString(nextCPU.getId()));
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
-
-            // Actualizamos el conjunto de CPUs
-            cpuTreeMonitor.addCPU(nextCPU);
 
             i++;
         }
