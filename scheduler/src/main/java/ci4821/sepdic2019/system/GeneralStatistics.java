@@ -50,7 +50,7 @@ public class GeneralStatistics {
         log.add_cpu_stats(
             Integer.toString(this.busyCPUs()),
             Integer.toString(this.freeCPUs()),
-            Double.toString(this.busyCPUsPercentage()));
+            log.doubleToString(this.busyCPUsPercentage()));
 
         log.add_proc_stats(
             Integer.toString(this.runningProcesses()), 

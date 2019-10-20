@@ -92,7 +92,7 @@ public class OperatingSystem {
             Process newProcess = new Process(
                 pid,
                 taskIterator,
-                Double.parseDouble(process.get("pid").toString()),
+                Double.parseDouble(process.get("priority").toString()),
                 resource,
                 log,
                 cpusMonitor,
@@ -107,8 +107,8 @@ public class OperatingSystem {
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
             log.add_proc(
                 Integer.toString(newProcess.getPid()),
-                Double.toString(newProcess.getPriority()),
-                Double.toString(newProcess.getVruntime()),
+                log.doubleToString(newProcess.getPriority()),
+                log.doubleToString(newProcess.getVruntime()),
                 statusMapMonitor.getStatus(newProcess).name(),
                 Integer.toString(newProcess.getCPU().getId())
             );

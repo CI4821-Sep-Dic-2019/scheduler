@@ -95,7 +95,7 @@ public class CPUsMonitor {
             Integer.toString(cpu.processesNumber()), 
             Integer.toString(cpu.workingTime()), 
             Integer.toString(cpu.sleepingTime()), 
-            Double.toString(cpu.usagePercentage())
+            log.doubleToStringPercentage(cpu.usagePercentage())
         );
     }
 

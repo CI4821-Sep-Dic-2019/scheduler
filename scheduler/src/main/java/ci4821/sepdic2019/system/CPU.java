@@ -110,7 +110,7 @@ public class CPU implements Runnable {
 
     public double usagePercentage() {
         double total = clock.getClock();
-        double percentage = (double) usage/total*100;
+        double percentage = (double) usage/total;
         return percentage;
     }
 

@@ -34,10 +34,10 @@ public class StatusMapMonitor {
             cpu_id = Integer.toString(cpu.getId());
         }
         log.add_proc(
-            Integer.toString(process.getPid()), 
-            Double.toString(process.getPriority()), 
-            Double.toString(process.getVruntime()), 
-            status.name(), 
+            Integer.toString(process.getPid()),
+            log.doubleToString(process.getPriority()),
+            log.doubleToString(process.getVruntime()),
+            status.name(),
             cpu_id
         );
         statusMap.put(process, status);
@@ -70,8 +70,8 @@ public class StatusMapMonitor {
         log.add(logName + " Remove process " + process.getPid());
         log.add_proc(
             Integer.toString(process.getPid()),
-            Double.toString(process.getPriority()),
-            Double.toString(process.getVruntime()),
+            log.doubleToString(process.getPriority()),
+            log.doubleToString(process.getVruntime()),
             "FINISHED",
             "-"
         );
