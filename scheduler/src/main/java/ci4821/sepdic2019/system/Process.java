@@ -122,7 +122,7 @@ public class Process {
         int initTime = clock.getClock();
         for (int i=0; clock.getClock() - initTime < timeToRun; i++) {
             clock.waitForClock();
-            log.add(logName + type + '(' + i + ')');
+            log.add(logName + type + " (" + i + ')');
         }
         log.add(logName + " Ran for " + timeToRun + " time units");
 
