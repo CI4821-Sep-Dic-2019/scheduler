@@ -102,7 +102,7 @@ public class OperatingSystem {
                 clock
             );
 
-            // Agregamos el proceso a los que esperan por este CPU            
+            // Agregamos el proceso a los que esperan por este CPU
             statusMapMonitor.setStatus(newProcess, Status.READY);
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
 

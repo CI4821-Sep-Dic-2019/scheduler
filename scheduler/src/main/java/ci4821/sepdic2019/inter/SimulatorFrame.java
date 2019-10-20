@@ -148,12 +148,6 @@ public class SimulatorFrame {
     }
 
     public void addlogRow(String log) {
-
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         model_log.addRow(new Object[] { log });
 
     }
@@ -162,11 +156,6 @@ public class SimulatorFrame {
 
         for (int i = 0; i < proc_row.size(); i++) {
             if (proc_row.get(i).equals(process_id)) {
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 proc_table.setValueAt(process_id, i, 0);
                 proc_table.setValueAt(prio, i, 1);
                 proc_table.setValueAt(time, i, 2);
@@ -174,12 +163,6 @@ public class SimulatorFrame {
                 proc_table.setValueAt(cpu, i, 4);
                 return;
             }
-        }
-
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         model_proc.addRow(new Object[] {process_id, prio, time, stat, cpu});
         proc_row.add(process_id);
@@ -190,11 +173,6 @@ public class SimulatorFrame {
 
         for (int i = 0; i < cpu_row.size(); i++) {
             if (cpu_row.get(i).equals(cpu_id)) {
-                try {
-                    TimeUnit.SECONDS.sleep(1);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
                 cpu_table.setValueAt(cpu_id, i, 0);
                 cpu_table.setValueAt(busy, i, 1);
                 cpu_table.setValueAt(proc_number, i, 2);
@@ -203,12 +181,6 @@ public class SimulatorFrame {
                 cpu_table.setValueAt(usage, i, 5);
                 return;
             }
-        }
-
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
         }
         model_cpu.addRow(new Object[] {cpu_id, busy, proc_number, work_time, sleep_time, usage});
         cpu_row.add(cpu_id);

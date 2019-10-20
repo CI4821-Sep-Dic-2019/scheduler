@@ -119,7 +119,8 @@ public class CPU implements Runnable {
     }
 
     public int processesNumber() {
-        return processTree.size();
+        int processesNum = (busy ? 1 : 0) + processTree.size();
+        return processesNum;
     }
 
     public void run() {
