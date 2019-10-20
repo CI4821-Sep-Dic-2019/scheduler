@@ -1,8 +1,11 @@
 package ci4821.sepdic2019.system;
 
+import ci4821.sepdic2019.ds.Log;
+
 public class GeneralStatistics {
     private final StatusMapMonitor processes;
     private final CPUsMonitor cpus;
+    private final Log log;
     private int running;
     private int blocked;
     private int ready;
@@ -10,9 +13,10 @@ public class GeneralStatistics {
     private int free;
     private double busyPercentage;
 
-    public GeneralStatistics(StatusMapMonitor processes, CPUsMonitor cpus) {
+    public GeneralStatistics(StatusMapMonitor processes, CPUsMonitor cpus, Log log) {
         this.processes = processes;
         this.cpus = cpus;
+        this.log = log;
     }
 
     public void calculateProcessesStatics() {
@@ -40,6 +44,18 @@ public class GeneralStatistics {
         }
         free = total - busy;
         busyPercentage = (double) busy / (double) total * 100;
+    }
+
+    public void update_log() {
+        log.add_cpu_stats(
+            Integer.toString(this.busyCPUs()),
+            Integer.toString(this.freeCPUs()),
+            Double.toString(this.busyCPUsPercentage()));
+
+        log.add_proc_stats(
+            Integer.toString(this.runningProcesses()), 
+            Integer.toString(this.readyProcesses()), 
+            Integer.toString(this.blockedProcesses()));
     }
 
     public int runningProcesses() {

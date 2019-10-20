@@ -87,8 +87,8 @@ public class Process {
         return allocatedCPUMonitor.getAllocatedCPU(this);
     }
 
-    public double getPrio() {
-        return this.priority;
+    public CPU getCPU_or_null() {
+        return allocatedCPUMonitor.getCPU(this);
     }
 
     /**

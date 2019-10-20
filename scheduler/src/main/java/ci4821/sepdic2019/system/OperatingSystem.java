@@ -48,7 +48,7 @@ public class OperatingSystem {
             log, loadBalancerTime);
 
         this.clock = clock;
-        this.generalStatistics = new GeneralStatistics(statusMapMonitor, cpusMonitor);
+        this.generalStatistics = new GeneralStatistics(statusMapMonitor, cpusMonitor, log);
         this.timer = new Timer(clock, cpusMonitor, generalStatistics);
     }
 
@@ -102,11 +102,8 @@ public class OperatingSystem {
                 clock
             );
 
-            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "CREATED", "");
-
             // Agregamos el proceso a los que esperan por este CPU            
             statusMapMonitor.setStatus(newProcess, Status.READY);
-            log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", Integer.toString(nextCPU.getId()));
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
 
             i++;

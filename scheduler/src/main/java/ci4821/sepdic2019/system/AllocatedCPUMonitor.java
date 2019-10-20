@@ -1,6 +1,7 @@
 package ci4821.sepdic2019.system;
 import java.util.HashMap;
 import java.util.Map;
+
 import ci4821.sepdic2019.ds.Log;
 import lombok.Getter;
 
@@ -36,6 +37,14 @@ public class AllocatedCPUMonitor {
         return map.get(process);
     }
 
+    public CPU getCPU(Process process) {
+        if (map.isEmpty() || map.get(process) == null) {
+            return null;
+        } else {
+            return map.get(process);
+        }
+    }
+
     /**
      * Allocates one {@code CPU} to a {@code Process},
      * assigning it to the pid in a {@code Map<Process, CPU>}.
@@ -50,6 +59,7 @@ public class AllocatedCPUMonitor {
         map.put(process, cpu);
         if (statusMap.getStatus(process).equals(Status.READY)) {
             cpu.addProcess(process);
+            cpus.update_cpu_log(cpu);
         }
 
         notifyAll();

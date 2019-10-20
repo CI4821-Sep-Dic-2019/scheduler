@@ -1,15 +1,12 @@
 package ci4821.sepdic2019.system;
 
-import java.util.TreeSet;
-
-import ci4821.sepdic2019.ds.Log;
-import lombok.Getter;
-
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import ci4821.sepdic2019.ds.Log;
+import lombok.Getter;
 
 @Getter
 public class CPUsMonitor {
@@ -87,6 +84,19 @@ public class CPUsMonitor {
     public synchronized void addCPU(CPU cpu) {        
         cpus.add(cpu);
         notifyAll();
+        this.update_cpu_log(cpu);
+        
+    }
+
+    public void update_cpu_log(CPU cpu) {
+        log.add_cpu(
+            Integer.toString(cpu.getId()), 
+            cpu.isBusy() ? "YES" : "NO", 
+            Integer.toString(cpu.processesNumber()), 
+            Integer.toString(cpu.workingTime()), 
+            Integer.toString(cpu.sleepingTime()), 
+            Double.toString(cpu.usagePercentage())
+        );
     }
 
     /**
@@ -135,6 +145,7 @@ public class CPUsMonitor {
         System.out.println("CPU's = " + cpus.size());
         for (CPU cpu : cpus) {
             cpu.updateUsage();
+            this.update_cpu_log(cpu);
             System.out.print("CPU " + cpu.getId());
             System.out.println(" : busy = " + cpu.isBusy() +
                 ", process = " + cpu.processesNumber() +

@@ -135,7 +135,6 @@ public class CPU implements Runnable {
 
             statusMapMonitor.setStatus(process, Status.RUNNING);
             log.add(logName + "  start running process " + process.getPid());
-            log.add_proc(Integer.toString(process.getPid()), Double.toString(process.getPrio()), "", "RUNNING", Integer.toString(this.id));
             process.run(maxTimeToRun);
             busy = false;
             if (processTree.isEmpty()) {
