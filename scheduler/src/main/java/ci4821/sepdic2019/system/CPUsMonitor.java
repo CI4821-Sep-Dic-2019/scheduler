@@ -61,7 +61,7 @@ public class CPUsMonitor {
             }
         }
 
-        while (max_cpu.processesNumber() == 0) {
+        while (max_cpu.getProcessTree().size() == 0) {
             try{
                 wait();
             } catch (InterruptedException e) {

@@ -2,6 +2,7 @@ package ci4821.sepdic2019.system;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Collection;
 
 import ci4821.sepdic2019.ds.Log;
 import lombok.Getter;
@@ -61,8 +62,19 @@ public class StatusMapMonitor {
         return status;
     }
 
+    public synchronized Collection<Status> getStatusValues() {
+        return statusMap.values();
+    }
+
     public synchronized void removeProcess(Process process) {
         log.add(logName + " Remove process " + process.getPid());
+        log.add_proc(
+            Integer.toString(process.getPid()),
+            Double.toString(process.getPriority()),
+            Double.toString(process.getVruntime()),
+            "FINISHED",
+            "-"
+        );
         statusMap.remove(process);
     }
 }

@@ -105,7 +105,13 @@ public class OperatingSystem {
             // Agregamos el proceso a los que esperan por este CPU
             statusMapMonitor.setStatus(newProcess, Status.READY);
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
-
+            log.add_proc(
+                Integer.toString(newProcess.getPid()),
+                Double.toString(newProcess.getPriority()),
+                Double.toString(newProcess.getVruntime()),
+                statusMapMonitor.getStatus(newProcess).name(),
+                Integer.toString(newProcess.getCPU().getId())
+            );
             i++;
         }
     }
