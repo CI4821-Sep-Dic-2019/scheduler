@@ -26,6 +26,7 @@ public class OperatingSystem {
     private final LoadBalancer loadBalancer;
     private final Timer timer;
     private final Clock clock;
+    private final GeneralStatistics generalStatistics;
     
     public OperatingSystem(
         CPUsMonitor cpusMonitor,
@@ -47,6 +48,7 @@ public class OperatingSystem {
             log, loadBalancerTime);
 
         this.clock = clock;
+        this.generalStatistics = new GeneralStatistics(statusMapMonitor, cpusMonitor);
         this.timer = new Timer(clock, cpusMonitor);
     }
 
