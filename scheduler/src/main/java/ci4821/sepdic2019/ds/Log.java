@@ -2,6 +2,7 @@ package ci4821.sepdic2019.ds;
 import ci4821.sepdic2019.inter.SimulatorFrame;
 
 public class Log {
+    
     SimulatorFrame simulator;
 
     public Log() {
