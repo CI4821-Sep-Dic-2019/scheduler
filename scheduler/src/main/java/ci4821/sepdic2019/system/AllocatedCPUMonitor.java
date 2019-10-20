@@ -51,7 +51,6 @@ public class AllocatedCPUMonitor {
         if (statusMap.getStatus(process).equals(Status.READY)) {
             cpu.addProcess(process);
         }
-        cpuTree.updateCPU(cpu);
 
         notifyAll();
     }

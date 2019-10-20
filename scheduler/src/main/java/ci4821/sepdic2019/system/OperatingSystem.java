@@ -84,7 +84,7 @@ public class OperatingSystem {
                 .map(x -> Integer.parseInt(x))
                 .collect(Collectors.toList()));
 
-            CPU nextCPU = cpuTreeMonitor.pollIdle(); // CPU con menos carga
+            CPU nextCPU = cpuTreeMonitor.getMinCPU(); // CPU con menos carga
             int pid = Integer.parseInt(process.get("pid").toString());
 
             Process newProcess = new Process(
@@ -106,9 +106,6 @@ public class OperatingSystem {
             statusMapMonitor.setStatus(newProcess, Status.READY);
             log.add_proc(process.get("pid").toString(), process.get("priority").toString(), process.get("time").toString(), "READY", Integer.toString(nextCPU.getId()));
             allocatedCPUMonitor.setAllocatedCPU(newProcess, nextCPU);
-
-            // Actualizamos el conjunto de CPUs
-            cpuTreeMonitor.addCPU(nextCPU);
 
             i++;
         }

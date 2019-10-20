@@ -148,7 +148,6 @@ public class Process {
             System.out.println("FINISHED...");
             CPU cpu = getCPU();
             cpu.removeProcess(this);
-            cpuTreeMonitor.updateCPU(cpu);
 
             allocatedCPUMonitor.removeProcess(this);
             statusMapMonitor.removeProcess(this);
