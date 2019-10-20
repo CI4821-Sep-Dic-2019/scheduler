@@ -24,23 +24,11 @@ public class Timer implements Runnable {
 
     public void run() {
         while(true) {
-            System.out.println("Time: " + clock.getClock());
             clock.increment();
             cpusMonitor.updateCPUsUsage();
             generalStatistics.calculateProcessesStatics();
             generalStatistics.calculateCPUsStatics();
             generalStatistics.update_log();
-            System.out.println(
-                "Running Processes = " + generalStatistics.runningProcesses() +
-                ", Blocked Processes= " + generalStatistics.blockedProcesses() +
-                ", Ready Processes= " + generalStatistics.readyProcesses()
-            );
-            System.out.println(
-                "Busy CPUs = " + generalStatistics.busyCPUs() +
-                ", Free CPUs = " + generalStatistics.freeCPUs() +
-                ", Percentage = " + generalStatistics.busyCPUsPercentage()
-            );
-
         }
     }
 }

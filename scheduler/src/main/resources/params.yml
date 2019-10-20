@@ -1,6 +1,6 @@
 cores: "4"
 load-balancer: "10000"
-cycle: "300"
+cycle: "500"
 processes:
   - pid: "11"
     time: "25"
