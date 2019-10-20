@@ -23,9 +23,9 @@ public class Simulator {
     StatusMapMonitor statusMapMonitor;
     Clock clock;
 
-    public Simulator() {
+    public Simulator(String fileName) {
 
-        Parser parseObj = new Parser("params.yml");
+        Parser parseObj = new Parser(fileName);
         this.data = parseObj.parseFile();
 
         this.log = new Log();

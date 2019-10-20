@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
@@ -34,9 +35,10 @@ public class Parser {
         Map<String, Object> parsedData = null;
         
         try {
-            ClassLoader classLoader = getClass().getClassLoader();
-            inputStream = classLoader.getResourceAsStream(this.fileName);
+            String path = "src/main/resources/";
+            inputStream = new FileInputStream(path + this.fileName);
             parsedData = yaml.load(inputStream);
+            inputStream.close();
 
         } catch (Exception e) {
             e.printStackTrace();
