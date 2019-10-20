@@ -1,20 +1,21 @@
 package ci4821.sepdic2019.inter;
 
-import javax.swing.JFrame;
-import javax.swing.JTable;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.border.TitledBorder;
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.JTabbedPane;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
+import javax.swing.table.DefaultTableModel;
 
 
 public class SimulatorFrame {
@@ -34,16 +35,19 @@ public class SimulatorFrame {
     // Array of processes IDs, the position of the process in the array
     // corresponds to the rown number of the process in the table
     ArrayList<String> proc_row;
+    ArrayList<String> cpu_row;
 
     JLabel num_proc_run;
     JLabel num_proc_ready;
     JLabel num_proc_block;
     JLabel num_cpu_busy;
     JLabel num_cpu_free;
+    JLabel cpu_usage;
 
     public SimulatorFrame() {
 
         proc_row = new ArrayList<String>();
+        cpu_row = new ArrayList<String>();
 
         // Main window
         frame = new JFrame();
@@ -90,7 +94,9 @@ public class SimulatorFrame {
         num_cpu_free = (new JLabel("0", JLabel.LEFT));
         cpu_stats.add(num_cpu_free);
 
-        cpu_stats.add(new JLabel("here goes the use %", JLabel.LEFT));
+        cpu_stats.add(new JLabel("Usage: ", JLabel.LEFT));
+        cpu_usage = (new JLabel("0 %", JLabel.LEFT));
+        cpu_stats.add(cpu_usage);
 
         panel_stat.add(proc_stats);
         panel_stat.add(cpu_stats);
@@ -103,7 +109,7 @@ public class SimulatorFrame {
         proc_table = new JTable();
         proc_table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
         model_proc = new DefaultTableModel();
-        String header_proc[] = new String[] { "ID", "PRIORITY", "TIME", "STATUS", "CPU" };
+        String header_proc[] = new String[] { "ID", "PRIORITY", "VRUNTIME", "STATUS", "CPU" };
         model_proc.setColumnIdentifiers(header_proc);
         proc_table.setModel(model_proc);
         panel_proc.add(new JScrollPane(proc_table), BorderLayout.CENTER);
@@ -178,6 +184,47 @@ public class SimulatorFrame {
         model_proc.addRow(new Object[] {process_id, prio, time, stat, cpu});
         proc_row.add(process_id);
 
+    }
+    
+    public void addcpuRow(String cpu_id, String busy, String proc_number, String work_time, String sleep_time, String usage) {
+
+        for (int i = 0; i < cpu_row.size(); i++) {
+            if (cpu_row.get(i).equals(cpu_id)) {
+                try {
+                    TimeUnit.SECONDS.sleep(1);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                cpu_table.setValueAt(cpu_id, i, 0);
+                cpu_table.setValueAt(busy, i, 1);
+                cpu_table.setValueAt(proc_number, i, 2);
+                cpu_table.setValueAt(work_time, i, 3);
+                cpu_table.setValueAt(sleep_time, i, 4);
+                cpu_table.setValueAt(usage, i, 5);
+                return;
+            }
+        }
+
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        model_cpu.addRow(new Object[] {cpu_id, busy, proc_number, work_time, sleep_time, usage});
+        cpu_row.add(cpu_id);
+
+    }
+
+    public void update_proc_stats(String run, String ready, String block) {
+        num_proc_run.setText(run);
+        num_proc_ready.setText(ready);
+        num_proc_block.setText(block);
+    }
+
+    public void update_cpu_stats(String busy, String free, String usage) {
+        num_cpu_busy.setText(busy);
+        num_cpu_free.setText(free);
+        cpu_usage.setText(usage + " %");
     }
 
     public void makeVisible() {

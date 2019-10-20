@@ -29,6 +29,7 @@ public class Timer implements Runnable {
             cpusMonitor.updateCPUsUsage();
             generalStatistics.calculateProcessesStatics();
             generalStatistics.calculateCPUsStatics();
+            generalStatistics.update_log();
             System.out.println(
                 "Running Processes = " + generalStatistics.runningProcesses() +
                 ", Blocked Processes= " + generalStatistics.blockedProcesses() +

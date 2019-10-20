@@ -27,6 +27,18 @@ public class StatusMapMonitor {
      */
     public synchronized void setStatus(Process process, Status status) {
         log.add(logName + " Set process " + process.getPid() + " to " + status);
+        CPU cpu = process.getCPU_or_null();
+        String cpu_id = "Not allocated";
+        if (cpu != null) {
+            cpu_id = Integer.toString(cpu.getId());
+        }
+        log.add_proc(
+            Integer.toString(process.getPid()), 
+            Double.toString(process.getPriority()), 
+            Double.toString(process.getVruntime()), 
+            status.name(), 
+            cpu_id
+        );
         statusMap.put(process, status);
         notifyAll();
     }
