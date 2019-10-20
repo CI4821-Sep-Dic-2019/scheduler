@@ -72,7 +72,6 @@ public class Process {
 
     public void waitForResource() {
         statusMapMonitor.setStatus(this, Status.BLOCKED);
-        log.add_proc(Integer.toString(this.pid), Double.toString(this.priority), "", "RUNNING", Integer.toString(getCPU().getId()));
         resource.enqueue(this);
     }
 
@@ -118,6 +117,10 @@ public class Process {
         Integer burst = taskDeque.removeFirst();
         String type = ioBurst ? " Waiting for resource " + resource.getName() : " Running at cpu " + getCPU().getId();
 
+        if (!ioBurst) {
+            statusMapMonitor.setStatus(this, Status.RUNNING);
+        }
+
         int timeToRun = maxTimeToRun != null && maxTimeToRun != 0 ? Math.min(maxTimeToRun, burst) : burst;
         int initTime = clock.getClock();
         for (int i=0; clock.getClock() - initTime < timeToRun; i++) {
@@ -145,7 +148,6 @@ public class Process {
             else waitForResource();
 
         } else {
-            System.out.println("FINISHED...");
             CPU cpu = getCPU();
             cpu.removeProcess(this);
 

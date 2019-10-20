@@ -23,7 +23,7 @@ public class GeneralStatistics {
         running = 0;
         blocked = 0;
         ready = 0; 
-        for (Status status : processes.getStatusMap().values()) {
+        for (Status status : processes.getStatusValues()) {
             if (status == Status.RUNNING) {
                 running++;
             } else if (status == Status.BLOCKED) {
@@ -50,7 +50,7 @@ public class GeneralStatistics {
         log.add_cpu_stats(
             Integer.toString(this.busyCPUs()),
             Integer.toString(this.freeCPUs()),
-            Double.toString(this.busyCPUsPercentage()));
+            log.doubleToString(this.busyCPUsPercentage()));
 
         log.add_proc_stats(
             Integer.toString(this.runningProcesses()), 

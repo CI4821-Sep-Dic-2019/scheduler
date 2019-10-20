@@ -1,12 +1,26 @@
 package ci4821.sepdic2019.ds;
 import ci4821.sepdic2019.inter.SimulatorFrame;
 
+import java.text.DecimalFormat;
+
 public class Log {
     
     SimulatorFrame simulator;
+    private final DecimalFormat decimalFormat;
+    private final DecimalFormat decimalFormatPercentage;
 
     public Log() {
         simulator = new SimulatorFrame();
+        decimalFormat = new DecimalFormat("#0.00");
+        decimalFormatPercentage = new DecimalFormat("#00.00%");
+    }
+
+    public String doubleToString(Double val) {
+        return decimalFormat.format(val);
+    }
+
+    public String doubleToStringPercentage(Double val) {
+        return decimalFormatPercentage.format(val);
     }
 
     public synchronized void add_proc(String process_id, String prio, String time, String stat, String cpu) {
