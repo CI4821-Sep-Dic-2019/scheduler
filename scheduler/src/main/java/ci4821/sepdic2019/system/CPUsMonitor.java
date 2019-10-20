@@ -117,7 +117,13 @@ public class CPUsMonitor {
         System.out.println("CPU's = " + cpus.size());
         for (CPU cpu : cpus) {
             cpu.updateUsage();
-            System.out.println("CPU " + cpu.getId() + " : busy = " + cpu.isBusy() + ", process = " + cpu.processesNumber());
+            System.out.print("CPU " + cpu.getId());
+            System.out.println(" : busy = " + cpu.isBusy() +
+                ", process = " + cpu.processesNumber() +
+                ", working time = " + cpu.workingTime() +
+                ", sleeping time = " + cpu.sleepingTime() +
+                ", usage = " + cpu.usagePercentage()
+            );
         }
     }
 }

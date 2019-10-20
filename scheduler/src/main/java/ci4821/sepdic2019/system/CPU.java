@@ -99,6 +99,20 @@ public class CPU implements Runnable {
         usage += (isBusy() ? 1 : 0);
     }
 
+    public int workingTime() {
+        return usage;
+    }
+
+    public int sleepingTime() {
+        return clock.getClock() - usage;
+    }
+
+    public double usagePercentage() {
+        double total = clock.getClock();
+        double percentage = (double) usage/total*100;
+        return percentage;
+    }
+
     public boolean isBusy() {
         return busy || !processTree.isEmpty();
     }
