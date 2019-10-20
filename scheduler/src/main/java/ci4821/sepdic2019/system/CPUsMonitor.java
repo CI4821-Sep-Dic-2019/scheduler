@@ -42,11 +42,33 @@ public class CPUsMonitor {
         return min_cpu;
     }
 
-    public synchronized void notifyAddProcess() {
+    public synchronized void notifyReadyProcess() {
         notifyAll();
     }
 
-    public synchronized CPU getMaxCPU() {
+
+    /**
+     * Migrar un proceso del CPU con más carga a este.
+     */
+    public synchronized Process pullLoadBalancing(CPU cpu) {
+        CPU newCPU = cpu;
+        while ( newCPU.processesNumber() <= 1 && cpu.processesNumber() < 1 ) {
+            try{
+                wait();
+            } catch (InterruptedException e) {
+                log.add(logName + " Interrupted.");
+            }
+            newCPU = getMaxCPU(cpu);
+        }
+        if (cpu.processesNumber() > 0) {
+            return null;
+        }
+        Process process = newCPU.pollProcess();
+        log.add(logName + " Pullig from cpu: " + newCPU.getId() + " to cpu: " + cpu.getId());
+        return process;
+    }
+
+    public synchronized CPU getMaxCPU(CPU initial_cpu) {
         while(cpus.isEmpty()) {
             try{
                 wait();
@@ -54,29 +76,18 @@ public class CPUsMonitor {
                 log.add(logName + " Interrupted.");
             }
         }
-        CPU max_cpu = cpus.get(0);
+        if (initial_cpu.processesNumber() > 0) {
+            return initial_cpu;
+        }
+        CPU max_cpu = initial_cpu;
         for (CPU cpu : cpus) {
             if (cpu.processesNumber() > max_cpu.processesNumber()) {
                 max_cpu = cpu;
             }
         }
-
-        while (max_cpu.getProcessTree().size() == 0) {
-            try{
-                wait();
-            } catch (InterruptedException e) {
-                log.add(logName + " Interrupted.");
-            }
-            for (CPU cpu : cpus) {
-                if (cpu.processesNumber() > max_cpu.processesNumber()) {
-                    max_cpu = cpu;
-                }
-            }
-        }
-
-        log.add(logName + " Get CPU with id " + max_cpu.getId());
         return max_cpu;
     }
+
     /**
      * Add a {@code CPU} to the {@code ArrayList<CPU>} to be tracked.
      * @param cpu       CPU to be added.

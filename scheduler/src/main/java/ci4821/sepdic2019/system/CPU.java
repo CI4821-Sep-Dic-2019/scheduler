@@ -64,7 +64,7 @@ public class CPU implements Runnable {
     public void addProcess(Process process) {
         log.add(logName + " add process " + process.getPid());
         processTree.addProcess(process);
-        cpusMonitor.notifyAddProcess();
+        cpusMonitor.notifyReadyProcess();
     }
 
     /**
@@ -85,15 +85,6 @@ public class CPU implements Runnable {
         Process process = processTree.getProcess();
         log.add(logName + " poll process " + process.getPid());
         return process;
-    }
-
-    /**
-     * Migrar un proceso del CPU con más carga a este.
-     */
-    public void pullLoadBalancing() {
-        CPU cpu = cpusMonitor.getMaxCPU();
-        Process process = cpu.pollProcess();
-        allocatedCPUMonitor.setAllocatedCPU(process, this);
     }
 
     public void updateUsage() {
@@ -139,8 +130,11 @@ public class CPU implements Runnable {
             process.run(maxTimeToRun);
             busy = false;
             if (processTree.isEmpty()) {
-                log.add(logName + " Pull load balancing from CPU: ");
-                pullLoadBalancing();
+                log.add(logName + " Pull load balancing for CPU: " + this.getId());
+                Process newProcess = cpusMonitor.pullLoadBalancing(this);
+                if (newProcess != null) {
+                    allocatedCPUMonitor.setAllocatedCPU(newProcess, this);
+                }
             }
         }
     }

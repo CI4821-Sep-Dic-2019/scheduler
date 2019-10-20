@@ -29,6 +29,9 @@ public class Timer implements Runnable {
             generalStatistics.calculateProcessesStatics();
             generalStatistics.calculateCPUsStatics();
             generalStatistics.update_log();
+            if(generalStatistics.readyProcesses() > 0) {
+                cpusMonitor.notifyReadyProcess();
+            }
         }
     }
 }

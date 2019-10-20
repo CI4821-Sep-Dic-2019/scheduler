@@ -117,6 +117,10 @@ public class Process {
         Integer burst = taskDeque.removeFirst();
         String type = ioBurst ? " Waiting for resource " + resource.getName() : " Running at cpu " + getCPU().getId();
 
+        if (!ioBurst) {
+            statusMapMonitor.setStatus(this, Status.RUNNING);
+        }
+
         int timeToRun = maxTimeToRun != null && maxTimeToRun != 0 ? Math.min(maxTimeToRun, burst) : burst;
         int initTime = clock.getClock();
         for (int i=0; clock.getClock() - initTime < timeToRun; i++) {
